@@ -90,13 +90,11 @@
       min-height: 460px;
       overflow: visible;
     }
-
     /* 左侧卡片宽度 */
     .card-wrapper:first-child {
       flex: 0 0 600px;
       min-width: 600px;
     }
-    
     /* 右侧卡片 - 自动填充剩余空间 */
     .card-wrapper:last-child {
       flex: 1;
@@ -202,6 +200,29 @@
       background-color: rgba(78, 115, 223, 0.05);
       border-color: rgba(78, 115, 223, 0.2);
     }
+
+    /* 添加链接样式 */
+    .list-group-item .text-primary {
+      transition: all 0.2s;
+      cursor: pointer;
+      display: inline-block;
+      max-width: 100%;
+    }
+    .list-group-item .text-primary:hover {
+      color: var(--accent-color) !important;
+      text-decoration: underline;
+    }
+
+    /* 工具提示动画 */
+    @keyframes fadeTooltip {
+      0% { opacity: 0; transform: translateY(5px); }
+      20% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-5px); }
+    }
+    .copy-tooltip {
+      animation: fadeTooltip 1.3s ease forwards;
+    }
     
     .modal-content {
       border: none;
@@ -258,7 +279,7 @@
       }
         
       .card-wrapper:first-child .card,
-      .card-wrapper:last-child .card {
+      .card-wrapper:last-child .card { 
         height: auto !important;
         min-height: auto !important;
       }
@@ -297,7 +318,7 @@
         display: none;
       }
       .card-footer p {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
       }
      .qrcode-container {
         margin: 8px 0;
