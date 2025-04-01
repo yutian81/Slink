@@ -75,7 +75,7 @@
     .cards-container {
       display: flex;
       gap: 1.5rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       align-items: flex-start;
     }
     
@@ -98,14 +98,14 @@
 
     /* 左侧卡片 - 变窄 */
     .card-wrapper:first-child {
-      flex: 0 0 600px; /* 固定宽度400px */
+      flex: 0 0 600px;
       min-width: 600px;
     }
     
     /* 右侧卡片 - 自动填充剩余空间 */
     .card-wrapper:last-child {
       flex: 1;
-      min-width: calc(100% - 615px); /* 总宽度减去左侧卡片和间距 */
+      min-width: calc(100% - 615px);
     }
 
     .card:hover {
