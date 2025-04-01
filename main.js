@@ -16,7 +16,6 @@ function shorturl() {
   
   // 短链中不能有空格
   document.getElementById('keyPhrase').value = document.getElementById('keyPhrase').value.replace(/\s/g, "-");
-
   document.getElementById("addBtn").disabled = true;
   document.getElementById("addBtn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>处理中...';
   fetch(apiSrv, {
@@ -107,8 +106,7 @@ function loadUrlList() {
     let keyShortURL = localStorage.key(len - 1)
     let valueLongURL = localStorage.getItem(keyShortURL)
 
-    // 如果长链接为空，加载所有本地存储
-    // 如果长链接不为空，只加载匹配项
+    // 如果长链接为空，加载所有本地存储；如果长链接不为空，只加载匹配项
     if (longUrl == "" || (longUrl == valueLongURL)) {
       addUrlToList(keyShortURL, valueLongURL)
     }
@@ -152,11 +150,7 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  //qrcodeBtn.innerText = "二维码"
-  //keyItem.appendChild(qrcodeBtn)
-  //child.appendChild(keyItem)
-  qrcodeIcon.classList.add("fas", "fa-qrcode")
-  qrcodeBtn.appendChild(qrcodeIcon)
+  qrcodeBtn.innerText = "二维码"
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
@@ -321,40 +315,70 @@ function loadKV() {
 
 // 生成二维码
 function buildQrcode(shortUrl) {
+  // 获取当前主题模式（深色/浅色）
+  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
   var options = {
-    // 渲染方式: 'canvas', 'image' 或 'div'
-    render: 'canvas',
-    // 版本范围: 1-40
-    minVersion: 1,
-    maxVersion: 40,
-    // 纠错等级: 'L', 'M', 'Q' 或 'H'
-    ecLevel: 'Q',
-    // 在现有画布上的偏移量
+    // 基本设置
+    render: 'canvas',       // 使用canvas渲染，性能更好
+    minVersion: 5,         // 最小版本从1提高到5，避免过简
+    maxVersion: 40,        // 最大版本限制到20，防止过大。可选1-40
+    ecLevel: 'H',          // 使用最高纠错等级H（可恢复30%数据）
+    
+    // 尺寸与定位
+    size: 192,             // 适度缩小尺寸
     left: 0,
     top: 0,
-    // 尺寸(像素)
-    size: 256,
-    // 二维码颜色
-    fill: '#000',
-    // 背景色，null表示透明
-    background: null,
-    // 二维码内容
+    
+    // 颜色方案（适配深色模式）
+    fill: isDarkMode ? '#FFF' : '#2A2B2C', // 深色模式用白色，浅色用深灰
+    background: isDarkMode ? 'rgba(45, 55, 72, 0.8)' : null, // 深色模式半透明背景
+    
+    // 内容设置
     text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
-    // 圆角半径
-    radius: 4,
-    // 空白区域
-    quiet: 2,
-    // 模式
-    mode: 0,
-    mSize: 0.1,
-    mPosX: 0.5,
-    mPosY: 0.5,
-    label: '无标签',
-    fontname: 'sans',
-    fontcolor: '#000',
-    image: null
+    
+    // 样式优化
+    radius: 5,             // 适度增加圆角
+    quiet: 3,              // 保证足够的空白边距
+    mode: 0,               // 普通模式
+    
+    // 中心图标设置（如需）
+    mSize: 0.18,           // 稍大的中心区域
+    mPosX: 0.5,            // 居中
+    mPosY: 0.5,            // 居中
+    image: null,           // 可替换为logo路径
+    
+    // 标签设置（如需）
+    label: shortUrl,       // 显示短链作为标签
+    fontname: 'system-ui, -apple-system, sans-serif', // 现代字体
+    fontcolor: isDarkMode ? '#FFF' : '#2A2B2C',
+    labelFontsize: 12      // 标签字体大小
   };
-  $("#qrcode-" + shortUrl.replace(/(:|\.|\[|\]|,|=|@)/g, "\\$1").replace(/(:|\#|\[|\]|,|=|@)/g, "\\$1") ).empty().qrcode(options);
+
+  // 清除旧二维码并生成新二维码
+  const container = $("#qrcode-" + shortUrl.replace(/([:.#[\]|=@])/g, "\\$1"));
+  container.empty();
+  
+  // 添加容器样式
+  container.css({
+    'padding': '12px',
+    'background': isDarkMode ? 'rgba(45, 55, 72, 0.5)' : '#FFF',
+    'border-radius': '8px',
+    'display': 'inline-block'
+  });
+  
+  // 生成二维码
+  container.qrcode(options);
+  
+  // 添加悬停动画效果
+  container.hover(
+    function() {
+      $(this).css('transform', 'scale(1.03)');
+    },
+    function() {
+      $(this).css('transform', 'scale(1)');
+    }
+  );
 }
 
 function buildValueTxt(longUrl) {
