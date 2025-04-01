@@ -1,15 +1,15 @@
 const config = {
-  password: PASSWORD || "", // 管理密码 // if password != null, then use this config; otherwise, read password from KV.
+  password: typeof PASSWORD !== "undefined" ? PASSWORD : "", // 管理密码 // if password != null, then use this config; otherwise, read password from KV.
   result_page: false, // 是否使用结果页面 // After get the value from KV, if use a page to show the result.
-  theme: THEME || "", // 主题 // Homepage theme, use the empty value for default theme. To use urlcool theme, please fill with "theme/urlcool" .
+  theme: typeof THEME !== "undefined" ? THEME : "", // 主题 // Homepage theme, use the empty value for default theme. To use urlcool theme, please fill with "theme/urlcool" .
   cors: true, // 是否允许CORS // Allow Cross-origin resource sharing for API requests.
   unique_link: false, // 是否生成唯一短链(增加写入量) // If it is true, the same long url will be shorten into the same short url
   custom_link: true, // 允许自定义短链 // Allow users to customize the short url.
   overwrite_kv: false, // 允许覆盖已存在的key // Allow user to overwrite an existed key.
   snapchat_mode: false, // 阅后即焚模式 // The link will be distroyed after access.
   visit_count: false, // 访问计数(增加写入量) // Count visit times.
-  load_kv: false, // 从KV加载全部数据 // Load all from Cloudflare KV
-  system_type: TYPE || "shorturl", // 系统类型 // shorturl, imghost, other types {pastebin, journal}
+  load_kv: typeof LOAD_KV !== "undefined" ? LOAD_KV === "true" : false, // 从KV加载全部数据，默认false // Load all from Cloudflare KV
+  system_type: typeof TYPE !== "undefined" ? TYPE : "shorturl", // 系统类型 // shorturl, imghost, other types {pastebin, journal}
 }
 
 // 受保护的key列表 // key in protect_keylist can't read, add, del from UI and API
@@ -25,7 +25,7 @@ const html404 = `<!DOCTYPE html>
   <body>
     <h1>404 未找到</h1>
     <p>访问的URL不存在</p>
-    <p> <a href="https://github.com/crazypeace/Url-Shorten-Worker/" target="_self">GitHub项目</a> </p>
+    <p> <a href="https://github.com/yutian81/slink/" target="_self">GitHub项目</a> </p>
   </body>
   </html>`
 
