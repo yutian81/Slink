@@ -1,3 +1,8 @@
+# 短链系统
+
+# 原作者教程
+<details>
+<summary>点击展开</summary>
 # 演示
 短链系统 https://1way.eu.org/bodongshouqulveweifengci
 
@@ -65,3 +70,5 @@ https://zelikk.blogspot.com/2024/04/url-shorten-worker-netjournal-markdown.html
 
 # 用你的STAR告诉我这个Repo对你有用 Welcome STARs! :)
 [![Stargazers over time](https://starchart.cc/crazypeace/Url-Shorten-Worker.svg)](https://starchart.cc/crazypeace/Url-Shorten-Worker)
+
+</details>
