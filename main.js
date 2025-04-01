@@ -419,7 +419,7 @@ function buildQrcode(shortUrl) {
       background: null,
       text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
       radius: 4,
-      quiet: 2
+      quiet: 6
     });
 
     // 监听主题变化
