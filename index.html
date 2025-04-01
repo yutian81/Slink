@@ -206,13 +206,17 @@
     
     /*二维码样式*/
     .qrcode-container {
-      margin: 12px auto; /* 上下间距 */
-      padding: 12px; /* 内部留白 */
-      transition: all 0.3s ease;
-      max-width: 100%;
-      text-align: center;
+      margin: 12px 0; /* 上下16px间距，左右0 */
+      padding: 12px;
       background: var(--qrcode-bg);
-      border-radius: 8px; /* 添加圆角 */
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .list-group-item .qrcode-container {
+      margin-top: 12px; /* 确保顶部间距 */
+      margin-bottom: 6px;
     }
     
     .qrcode-container canvas {
