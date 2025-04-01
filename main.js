@@ -117,6 +117,47 @@ function copyurl(id, attr) {
   }
 }
 
+// 点击复制短链接
+function copyShortUrl(url) {
+  navigator.clipboard.writeText(url).then(() => {
+    // 创建临时提示元素
+    const tooltip = document.createElement('div');
+    tooltip.className = 'copy-tooltip';
+    tooltip.textContent = '已复制!';
+    tooltip.style.position = 'fixed';
+    tooltip.style.backgroundColor = 'rgba(0,0,0,0.7)';
+    tooltip.style.color = 'white';
+    tooltip.style.padding = '5px 10px';
+    tooltip.style.borderRadius = '4px';
+    tooltip.style.zIndex = '9999';
+    tooltip.style.transition = 'opacity 0.3s';
+    
+    // 定位到点击位置附近
+    const clickX = event.clientX;
+    const clickY = event.clientY;
+    tooltip.style.left = `${clickX - 30}px`;
+    tooltip.style.top = `${clickY - 40}px`;
+    document.body.appendChild(tooltip);
+    
+    // 1秒后淡出移除
+    setTimeout(() => {
+      tooltip.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(tooltip);
+      }, 300);
+    }, 1000);
+  }).catch(err => {
+    // 备用复制方法
+    const textarea = document.createElement('textarea');
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('已复制到剪贴板: ' + url);
+  });
+}
+
 function loadUrlList() {
   // 清空列表
   let urlList = document.querySelector("#urlList")
