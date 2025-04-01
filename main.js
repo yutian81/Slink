@@ -153,7 +153,7 @@ function addUrlToList(shortUrl, longUrl) {
   delBtn.classList.add("btn", "btn-danger", "rounded-bottom-0")
   delBtn.setAttribute('onclick', 'deleteShortUrl(\"' + shortUrl + '\")')
   delBtn.setAttribute('id', 'delBtn-' + shortUrl)
-  delBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> 删除'
+  delBtn.innerText = "X"
   keyItem.appendChild(delBtn)
 
   // 查询访问次数按钮
@@ -162,7 +162,7 @@ function addUrlToList(shortUrl, longUrl) {
   qryCntBtn.classList.add("btn", "btn-info")
   qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
   qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
-  qryCntBtn.innerHTML = '<i class="fas fa-chart-line me-1"></i>查询';
+  qryCntBtn.innerText = "?"
   keyItem.appendChild(qryCntBtn)
 
   // 短链接信息
@@ -177,7 +177,7 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerHTML = '<i class="fas fa-qrcode me-1"></i>二维码'
+  qrcodeBtn.innerText = "QR"
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
