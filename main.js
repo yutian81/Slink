@@ -56,37 +56,64 @@ function shorturl() {
 }
 
 function copyurl(id, attr) {
-  let target = null;
+  // 特殊处理密码字段
+  if (id === 'passwordText') {
+    const tempInput = document.createElement('input');
+    tempInput.value = document.getElementById(id).value;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    
+    try {
+      const success = document.execCommand('copy');
+      if (success) {
+        // 显示复制成功的提示
+        const popover = new bootstrap.Popover(document.querySelector('[data-bs-toggle="popover"]'), {
+          content: '密码已复制',
+          trigger: 'manual'
+        });
+        popover.show();
+        setTimeout(() => popover.hide(), 2000);
+      }
+    } catch (err) {
+      console.error('复制失败:', err);
+    } finally {
+      document.body.removeChild(tempInput);
+    }
+    return;
+  }
 
+  // 常规复制逻辑
+  let target = attr ? document.createElement('div') : document.querySelector('#' + id);
+  
   if (attr) {
-    target = document.createElement('div');
     target.id = 'tempTarget';
     target.style.opacity = '0';
-    if (id) {
-      let curNode = document.querySelector('#' + id);
-      target.innerText = curNode[attr];
-    } else {
-      target.innerText = attr;
-    }
+    const curNode = id ? document.querySelector('#' + id) : null;
+    target.innerText = curNode ? curNode[attr] : attr;
     document.body.appendChild(target);
-  } else {
-    target = document.querySelector('#' + id);
   }
 
   try {
-    let range = document.createRange();
+    const range = document.createRange();
     range.selectNode(target);
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand('copy');
     window.getSelection().removeAllRanges();
+    
+    // 显示复制成功的提示
+    const popover = new bootstrap.Popover(document.querySelector('[data-bs-toggle="popover"]'), {
+      content: '已复制',
+      trigger: 'manual'
+    });
+    popover.show();
+    setTimeout(() => popover.hide(), 2000);
   } catch (e) {
-    console.log('复制失败')
-  }
-
-  if (attr) {
-    // 移除临时元素
-    target.parentElement.removeChild(target);
+    console.error('复制失败:', e);
+  } finally {
+    if (attr) {
+      target.parentElement.removeChild(target);
+    }
   }
 }
 
@@ -275,42 +302,62 @@ function query1KV() {
   })
 }
 
-function loadKV() {
-  //清空本地存储
+async function loadKV() {
+  // 清空本地存储
   clearLocalStorage(); 
 
-  // 从KV中查询全部数据
-  fetch(apiSrv, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cmd: "qryall", password: password_value })
-  }).then(function (response) {    
-    return response.json();
-  }).then(function (myJson) {
-    res = myJson;
-    // 成功查询
-    if (res.status == "200") {
+  // 显示加载状态
+  const loadBtn = document.getElementById("loadKV2localStgBtn");
+  const originalText = loadBtn.innerHTML;
+  loadBtn.disabled = true;
+  loadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> 加载中...';
 
+  try {
+    // 从KV中查询全部数据
+    const response = await fetch(apiSrv, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cmd: "qryall", password: password_value })
+    });
+    
+    const result = await response.json();
+    
+    // 恢复按钮状态
+    loadBtn.disabled = false;
+    loadBtn.innerHTML = originalText;
+
+    // 处理结果
+    if (result.status === "200") {
       // 遍历查询结果
-      res.kvlist.forEach(item => {      
-        keyPhrase = item.key;
-        valueLongURL = item.value;
-        // 保存到本地存储
-        localStorage.setItem(keyPhrase, valueLongURL);  
+      result.kvlist.forEach(item => {
+        const keyPhrase = item.key;
+        const valueLongURL = item.value;
+        
+        // 跳过计数和受保护的key
+        if (!keyPhrase.endsWith("-count") && !protect_keylist.includes(keyPhrase)) {
+          // 保存到本地存储
+          localStorage.setItem(keyPhrase, valueLongURL);  
+        }
       });
       
       // 加载URL列表
       loadUrlList();
+      
+      // 显示成功消息
+      document.getElementById("result").innerHTML = `成功加载 ${result.kvlist.length} 条记录`;
+      new bootstrap.Modal(document.getElementById('resultModal')).show();
     } else {
-      document.getElementById("result").innerHTML = res.error;
-      // 显示结果弹窗
-      var modal = new bootstrap.Modal(document.getElementById('resultModal'));
-      modal.show();
+      document.getElementById("result").innerHTML = result.error || "加载KV数据失败";
+      new bootstrap.Modal(document.getElementById('resultModal')).show();
     }
-  }).catch(function (err) {
-    alert("未知错误，请重试！");
-    console.log(err);
-  })
+  } catch (error) {
+    // 恢复按钮状态
+    loadBtn.disabled = false;
+    loadBtn.innerHTML = originalText;
+    console.error("加载KV数据出错:", error);
+    document.getElementById("result").innerHTML = "网络错误，请重试";
+    new bootstrap.Modal(document.getElementById('resultModal')).show();
+  }
 }
 
 // 生成二维码
