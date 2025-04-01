@@ -322,7 +322,7 @@ function buildQrcode(shortUrl) {
     container.empty().addClass('qrcode-container');    
     container.qrcode({
       render: 'canvas',
-      size: 180,
+      size: 128,
       minVersion: 5,
       maxVersion: 20,
       ecLevel: 'H',
