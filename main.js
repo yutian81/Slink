@@ -153,16 +153,16 @@ function addUrlToList(shortUrl, longUrl) {
   delBtn.classList.add("btn", "btn-danger", "rounded-bottom-0")
   delBtn.setAttribute('onclick', 'deleteShortUrl(\"' + shortUrl + '\")')
   delBtn.setAttribute('id', 'delBtn-' + shortUrl)
-  delBtn.innerText = "删除"
+  delBtn.innerHTML = '<i class="fas fa-trash-alt me-1"></i> 删除'
   keyItem.appendChild(delBtn)
 
   // 查询访问次数按钮
   let qryCntBtn = document.createElement('button')
   qryCntBtn.setAttribute('type', 'button')
-  qryCntBtn.classList.add("btn", "btn-info")
+  qryCntBtn.classList.add("btn", "btn-outline-info", "btn-sm")
   qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
   qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
-  qryCntBtn.innerText = "查询"
+  qryCntBtn.innerHTML = '<i class="fas fa-chart-line me-1"></i>查询';
   keyItem.appendChild(qryCntBtn)
 
   // 短链接信息
@@ -177,7 +177,7 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerText = ""
+  qrcodeBtn.innerHTML = '<i class="fas fa-qrcode me-1"></i> 二维码'
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
@@ -234,34 +234,76 @@ function deleteShortUrl(delKeyPhrase) {
 }
 
 function queryVisitCount(qryKeyPhrase) {
-  // 按钮状态
-  document.getElementById("qryCntBtn-" + qryKeyPhrase).disabled = true;
-  document.getElementById("qryCntBtn-" + qryKeyPhrase).innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+  const btn = document.getElementById("qryCntBtn-" + qryKeyPhrase);
+  const originalHtml = btn.innerHTML;
+  
+  // 更新按钮状态
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> 查询中...';
 
-  // 从KV中查询访问次数
+  // 调试日志
+  console.log("[DEBUG] 查询访问次数:", {
+    key: qryKeyPhrase,
+    api: apiSrv,
+    time: new Date().toISOString()
+  });
+
   fetch(apiSrv, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cmd: "qry", key: qryKeyPhrase + "-count", password: password_value })
-  }).then(function (response) {
-    return response.json();
-  }).then(function (myJson) {
-    res = myJson;
-
-    // 成功查询
-    if (res.status == "200") {
-      document.getElementById("qryCntBtn-" + qryKeyPhrase).innerHTML = res.url;
-    } else {
-      document.getElementById("result").innerHTML = res.error;
-      // 显示结果弹窗
-      var modal = new bootstrap.Modal(document.getElementById('resultModal'));
-      modal.show();
-    }
-
-  }).catch(function (err) {
-    alert("未知错误，请重试！");
-    console.log(err);
+    body: JSON.stringify({ 
+      cmd: "qry",
+      key: qryKeyPhrase + "-count",
+      password: password_value
+    })
   })
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    console.log("[DEBUG] 查询结果:", data);
+    
+    if (data.status === 200) {
+      // 成功获取计数
+      btn.innerHTML = `访问: ${data.url}次`;
+      btn.classList.add("btn-success");
+      
+      // 3秒后恢复原样式
+      setTimeout(() => {
+        btn.classList.remove("btn-success");
+        btn.innerHTML = originalHtml;
+      }, 3000);
+    } else {
+      throw new Error(data.error || "未知错误");
+    }
+  })
+  .catch(error => {
+    console.error("[ERROR] 查询失败:", error);
+    
+    // 显示错误状态
+    btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 错误';
+    btn.classList.add("btn-danger");
+    
+    // 在模态框中显示详细错误
+    document.getElementById("result").innerHTML = `
+      <strong>查询失败</strong><br>
+      Key: ${qryKeyPhrase}<br>
+      错误: ${error.message}
+    `;
+    new bootstrap.Modal(document.getElementById('resultModal')).show();
+  })
+  .finally(() => {
+    btn.disabled = false;
+    
+    // 5秒后恢复按钮状态
+    setTimeout(() => {
+      if (!btn.classList.contains("btn-success")) {
+        btn.innerHTML = originalHtml;
+        btn.classList.remove("btn-danger");
+      }
+    }, 5000);
+  });
 }
 
 function query1KV() {
