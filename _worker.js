@@ -95,15 +95,32 @@ async function checkURL(URL) {
 }
 
 async function save_url(URL) {
-  let random_key = await randomString()
-  let is_exist = await LINKS.get(random_key)
-  // console.log(is_exist)
-  if (is_exist == null) {
-    return await LINKS.put(random_key, URL), random_key
+  const MAX_RETRIES = 5;
+  const INITIAL_KEY_LENGTH = 4;
+  let attempts = 0;
+  
+  while (attempts < MAX_RETRIES) {
+    const keyLength = attempts >= MAX_RETRIES / 2 ? INITIAL_KEY_LENGTH + 2 : INITIAL_KEY_LENGTH;
+    const random_key = await randomString(keyLength);
+    
+    try {
+      const existing_url = await LINKS.get(random_key);
+      
+      if (!existing_url) {
+        await LINKS.put(random_key, URL);
+        return random_key;
+      }
+    } catch (error) {
+      console.error(`KV操作失败 (尝试 ${attempts + 1}/${MAX_RETRIES}):`, error);
+    }
+    
+    attempts++;
+    if (attempts < MAX_RETRIES) {
+      await new Promise(resolve => setTimeout(resolve, 100)); // 100ms延迟
+    }
   }
-  else {
-    save_url(URL)
-  }
+  
+  throw new Error(`无法生成唯一短链，已达到最大重试次数 (${MAX_RETRIES}次)`);
 }
 
 async function is_url_exist(url_sha512) {
@@ -149,48 +166,59 @@ async function handleRequest(request) {
           headers: response_header,
         })
       }
-
-      let stat, random_key
+    
+      let random_key;
       if (config.custom_link && (req_key != "")) {
         if (protect_keylist.includes(req_key)) {
           return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误：受保护的key"}`, {
             headers: response_header,
           })
         }
-
-        let is_exist = await is_url_exist(req_key)
+    
+        const is_exist = await LINKS.get(req_key);
         if ((!config.overwrite_kv) && (is_exist)) {
           return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误：key已存在"}`, {
             headers: response_header,
           })
-        } else {
-          random_key = req_key
-          stat, await LINKS.put(req_key, req_url)
+        }
+        
+        try {
+          await LINKS.put(req_key, req_url);
+          random_key = req_key;
+        } catch (error) {
+          return new Response(`{"status":500,"key": "` + req_key + `", "error":"KV写入失败: ${error.message}"}`, {
+            headers: response_header,
+          })
         }
       } else if (config.unique_link) {
-        let url_sha512 = await sha512(req_url)
-        let url_key = await is_url_exist(url_sha512)
-        if (url_key) {
-          random_key = url_key
-        } else {
-          stat, random_key = await save_url(req_url)
-          if (typeof (stat) == "undefined") {
-            await LINKS.put(url_sha512, random_key)
+        try {
+          const url_sha512 = await sha512(req_url);
+          const url_key = await LINKS.get(url_sha512);
+          
+          if (url_key) {
+            random_key = url_key;
+          } else {
+            random_key = await save_url(req_url);
+            await LINKS.put(url_sha512, random_key);
           }
+        } catch (error) {
+          return new Response(`{"status":500, "key": "", "error":"${error.message}"}`, {
+            headers: response_header,
+          })
         }
       } else {
-        stat, random_key = await save_url(req_url)
+        try {
+          random_key = await save_url(req_url);
+        } catch (error) {
+          return new Response(`{"status":500, "key": "", "error":"${error.message}"}`, {
+            headers: response_header,
+          })
+        }
       }
       
-      if (typeof (stat) == "undefined") {
-        return new Response(`{"status":200, "key":"` + random_key + `", "error": ""}`, {
-          headers: response_header,
-        })
-      } else {
-        return new Response(`{"status":500, "key": "", "error":"错误：达到KV写入限制"}`, {
-          headers: response_header,
-        })
-      }
+      return new Response(`{"status":200, "key":"` + random_key + `", "error": ""}`, {
+        headers: response_header,
+      })
     } else if (req_cmd == "del") {
       if (protect_keylist.includes(req_key)) {
         return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误：受保护的key"}`, {
