@@ -1,18 +1,18 @@
 const config = {
-  password: "", // 管理面板使用密码 // if password != null, then use this config; otherwise, read password from KV.
-  result_page: false, // 是否用特定的result页面来显示value // After get the value from KV, if use a page to show the result.
-  theme: "", // 管理面板的主题 // Homepage theme, use the empty value for default theme. To use urlcool theme, please fill with "theme/urlcool" .
-  cors: true, // 是否允许CORS使用API // Allow Cross-origin resource sharing for API requests.
-  unique_link: false, // 一个长链是否只有唯一的短链(会增加写入的使用量) // If it is true, the same long url will be shorten into the same short url
+  password: "", // 管理密码 // if password != null, then use this config; otherwise, read password from KV.
+  result_page: false, // 是否使用结果页面 // After get the value from KV, if use a page to show the result.
+  theme: "", // 主题 // Homepage theme, use the empty value for default theme. To use urlcool theme, please fill with "theme/urlcool" .
+  cors: true, // 是否允许CORS // Allow Cross-origin resource sharing for API requests.
+  unique_link: false, // 是否生成唯一短链(增加写入量) // If it is true, the same long url will be shorten into the same short url
   custom_link: true, // 允许自定义短链 // Allow users to customize the short url.
   overwrite_kv: false, // 允许覆盖已存在的key // Allow user to overwrite an existed key.
-  snapchat_mode: false, // 短链只能访问一次(访问后就删除了) // The link will be distroyed after access.
-  visit_count: false, // 使用记数(会大大增加写入的使用量, 多人共用不推荐打开) // Count visit times.
-  load_kv: false, // 从KV加载全部数据(自用推荐打开, 多人共用会看到别人的数据) // Load all from Cloudflare KV
-  system_type: "shorturl", // 系统的功能定义 // shorturl, imghost, other types {pastebin, journal}
+  snapchat_mode: false, // 阅后即焚模式 // The link will be distroyed after access.
+  visit_count: false, // 访问计数(增加写入量) // Count visit times.
+  load_kv: false, // 从KV加载全部数据 // Load all from Cloudflare KV
+  system_type: "shorturl", // 系统类型 // shorturl, imghost, other types {pastebin, journal}
 }
 
-// key in protect_keylist can't read, add, del from UI and API
+// 受保护的key列表 // key in protect_keylist can't read, add, del from UI and API
 const protect_keylist = [
   "password",
 ]
@@ -23,9 +23,9 @@ let result_html = "https://crazypeace.github.io/Url-Shorten-Worker/" + config.th
 const html404 = `<!DOCTYPE html>
   <html>
   <body>
-    <h1>404 Not Found.</h1>
-    <p>The url you visit is not found.</p>
-    <p> <a href="https://github.com/crazypeace/Url-Shorten-Worker/" target="_self">Fork me on GitHub</a> </p>
+    <h1>404 未找到</h1>
+    <p>访问的URL不存在</p>
+    <p> <a href="https://github.com/crazypeace/Url-Shorten-Worker/" target="_self">GitHub项目</a> </p>
   </body>
   </html>`
 
@@ -118,9 +118,7 @@ async function is_url_exist(url_sha512) {
 
 // 系统密码
 async function system_password() {
-  // 配置中的passoword为空 config.password is NULL
   if (config.password.trim().length === 0 ) {    
-    // 查KV中的password对应的值 Query "password" in KV
     return await LINKS.get("password");
   }
   else {
@@ -129,55 +127,40 @@ async function system_password() {
 }
 
 async function handleRequest(request) {
-  // console.log(request)
-
-  // 系统密码
   const password_value  = await system_password();
   
-  /************************/
-  // 以下是API接口的处理 Below is operation for API
-
   if (request.method === "POST") {
     let req = await request.json()
-    // console.log(req)
 
     let req_cmd = req["cmd"]
     let req_url = req["url"]
     let req_key = req["key"]
     let req_password = req["password"]
 
-    /*
-    console.log(req_cmd)
-    console.log(req_url)
-    console.log(req_key)
-    console.log(req_password)
-    */
-
     if (req_password != password_value) {
-      return new Response(`{"status":500,"key": "", "error":"Error: Invalid password."}`, {
+      return new Response(`{"status":500,"key": "", "error":"错误：无效密码"}`, {
         headers: response_header,
       })
     }
 
     if (req_cmd == "add") {
       if ((config.system_type == "shorturl") && !await checkURL(req_url)) {
-        return new Response(`{"status":500, "url": "` + req_url + `", "error":"Error: Url illegal."}`, {
+        return new Response(`{"status":500, "url": "` + req_url + `", "error":"错误：URL不合法"}`, {
           headers: response_header,
         })
       }
 
       let stat, random_key
       if (config.custom_link && (req_key != "")) {
-        // Refuse 'password" as Custom shortURL
         if (protect_keylist.includes(req_key)) {
-          return new Response(`{"status":500,"key": "` + req_key + `", "error":"Error: Key in protect_keylist."}`, {
+          return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误：受保护的key"}`, {
             headers: response_header,
           })
         }
 
         let is_exist = await is_url_exist(req_key)
         if ((!config.overwrite_kv) && (is_exist)) {
-          return new Response(`{"status":500,"key": "` + req_key + `", "error":"Error: Specific key existed."}`, {
+          return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误：key已存在"}`, {
             headers: response_header,
           })
         } else {
@@ -193,33 +176,30 @@ async function handleRequest(request) {
           stat, random_key = await save_url(req_url)
           if (typeof (stat) == "undefined") {
             await LINKS.put(url_sha512, random_key)
-            // console.log()
           }
         }
       } else {
         stat, random_key = await save_url(req_url)
       }
-      // console.log(stat)
+      
       if (typeof (stat) == "undefined") {
         return new Response(`{"status":200, "key":"` + random_key + `", "error": ""}`, {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "key": "", "error":"Error: Reach the KV write limitation."}`, {
+        return new Response(`{"status":500, "key": "", "error":"错误：达到KV写入限制"}`, {
           headers: response_header,
         })
       }
     } else if (req_cmd == "del") {
-      // Refuse to delete 'password' entry
       if (protect_keylist.includes(req_key)) {
-        return new Response(`{"status":500, "key": "` + req_key + `", "error":"Error: Key in protect_keylist."}`, {
+        return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误：受保护的key"}`, {
           headers: response_header,
         })
       }
 
       await LINKS.delete(req_key)
       
-      // 计数功能打开的话, 要把计数的那条KV也删掉 Remove the visit times record
       if (config.visit_count) {
         await LINKS.delete(req_key + "-count")
       }
@@ -228,9 +208,8 @@ async function handleRequest(request) {
         headers: response_header,
       })
     } else if (req_cmd == "qry") {
-      // Refuse to query 'password'
       if (protect_keylist.includes(req_key)) {
-        return new Response(`{"status":500,"key": "` + req_key + `", "error":"Error: Key in protect_keylist."}`, {
+        return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误：受保护的key"}`, {
           headers: response_header,
         })
       }
@@ -244,29 +223,26 @@ async function handleRequest(request) {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "key": "` + req_key + `", "error":"Error: Key not exist."}`, {
+        return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误：key不存在"}`, {
           headers: response_header,
         })
       }
     } else if (req_cmd == "qryall") {
       if ( !config.load_kv) {
-        return new Response(`{"status":500, "error":"Error: Config.load_kv false."}`, {
+        return new Response(`{"status":500, "error":"错误：配置中load_kv为false"}`, {
           headers: response_header,
         })
       }
 
       let keyList = await LINKS.list()
       if (keyList != null) {
-        // 初始化返回数据结构 Init the return struct
         let jsonObjectRetrun = JSON.parse(`{"status":200, "error":"", "kvlist": []}`);
                 
         for (var i = 0; i < keyList.keys.length; i++) {
           let item = keyList.keys[i];
-          // Hide 'password' from the query all result
           if (protect_keylist.includes(item.name)) {
             continue;
           }
-          // Hide '-count' from the query all result
           if (item.name.endsWith("-count")) {
             continue;
           }
@@ -274,7 +250,6 @@ async function handleRequest(request) {
           let url = await LINKS.get(item.name);
           
           let newElement = { "key": item.name, "value": url };
-          // 填充要返回的列表 Fill the return list
           jsonObjectRetrun.kvlist.push(newElement);
         }
 
@@ -282,11 +257,10 @@ async function handleRequest(request) {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "error":"Error: Load keyList failed."}`, {
+        return new Response(`{"status":500, "error":"错误：加载keyList失败"}`, {
           headers: response_header,
         })
       }
-
     }
 
   } else if (request.method === "OPTIONS") {
@@ -295,86 +269,58 @@ async function handleRequest(request) {
     })
   }
 
-  /************************/
-  // 以下是浏览器直接访问worker页面的处理 Below is operation for browser visit worker page
-
   const requestURL = new URL(request.url)
   let path = requestURL.pathname.split("/")[1]
   path = decodeURIComponent(path);
   const params = requestURL.search;
 
-  // console.log(path)
-  // 如果path为空, 即直接访问本worker
-  // If visit this worker directly (no path)
   if (!path) {
-    // return Response.redirect("https://zelikk.blogspot.com/search/label/Url-Shorten-Worker", 302)
-    // /* 
     return new Response(html404, {
       headers: response_header,
       status: 404
     }) 
-    // */
   }
 
-  // 如果path符合password 显示操作页面index.html
-  // if path equals password, return index.html
   if (path == password_value) {
     let index = await fetch(index_html)
     index = await index.text()
     index = index.replace(/__PASSWORD__/gm, password_value)
-    // 操作页面文字修改
-    // index = index.replace(/短链系统变身/gm, "")
     return new Response(index, {
       headers: response_header,
     })
   }
 
-  // 在KV中查询 短链接 对应的原链接
-  // Query the value(long url) in KV by key(short url)
   let value = await LINKS.get(path);
-  // console.log(value)
 
-  // 如果path是'password', 让查询结果为空, 不然直接就把password查出来了
-  // Protect password. If path equals 'password', set result null
   if (protect_keylist.includes(path)) {
     value = ""
   }
 
   if (!value) {
-    // KV中没有数据, 返回404
-    // If request not in KV, return 404
     return new Response(html404, {
       headers: response_header,
       status: 404
     })
   }
 
-  // 计数功能
   if (config.visit_count) {
-    // 获取并增加访问计数
     let count = await LINKS.get(path + "-count");
     if (count === null) {
-      await LINKS.put(path + "-count", "1"); // 初始化为1，因为这是首次访问
+      await LINKS.put(path + "-count", "1");
     } else {
       count = parseInt(count) + 1;
       await LINKS.put(path + "-count", count.toString());
     }
   }
 
-  // 如果阅后即焚模式
   if (config.snapchat_mode) {
-    // 删除KV中的记录
-    // Remove record before jump to long url
     await LINKS.delete(path)
   }
 
-  // 带上参数部分, 拼装要跳转的最终网址
-  // URL to jump finally
   if (params) {
     value = value + params
   }
 
-  // 如果自定义了结果页面
   if (config.result_page) {
     let result_page_html = await fetch(result_html)
     let result_page_html_text = await result_page_html.text()      
@@ -384,18 +330,12 @@ async function handleRequest(request) {
     })
   } 
 
-  // 以下是不使用自定义结果页面的处理
-  // 作为一个短链系统, 需要跳转
   if (config.system_type == "shorturl") {
     return Response.redirect(value, 302)
   } else if (config.system_type == "imghost") {
-    // 如果是图床      
     var blob = base64ToBlob(value)
-    return new Response(blob, {
-      // 图片不能指定content-type为 text/plain
-    })
+    return new Response(blob)
   } else {
-    // 如果只是一个单纯的key-value系统, 简单的显示value就行了
     return new Response(value, {
       headers: {
           "Content-type": "text/plain;charset=UTF-8;",
