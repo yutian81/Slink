@@ -67,22 +67,20 @@
       box-shadow: var(--card-shadow);
       transition: all 0.3s ease;
       margin-bottom: 1.5rem;
-      height: auto;
       display: flex;
-      flex: 1;
       flex-direction: column;
-      min-height: 0;
     }
-
-    /* 左侧卡片 */
-    .card-wrapper:first-child .card-body {
-      flex: 1; /* 让body填充可用空间 */
+    
+    /* 左侧卡片 - 固定高度 */
+    .card-wrapper:first-child .card {
+      height: 480px; /* 固定高度 */
+      overflow: hidden; /* 防止内容溢出 */
     }
-
-    /* 右侧卡片 */
+    
+    /* 右侧卡片 - 自动高度 */
     .card-wrapper:last-child .card {
-      display: flex;
-      flex-direction: column;
+      height: auto;
+      min-height: 480px; /* 初始最小高度与左侧相同 */
     }
     
     .card:hover {
@@ -193,7 +191,7 @@
     
     .footer-link {
       color: var(--text-primary);
-      text-decoration: none !important; /* 强制移除下划线 */
+      text-decoration: none !important;
       transition: all 0.2s;
     }
     
@@ -210,18 +208,17 @@
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
-      align-items: stretch;
+      align-items: flex-start;
     }
     
     .card-wrapper {
-      display: flex;
       flex: 1;
       min-width: 400px;
     }
     
     /*二维码样式*/
     .qrcode-container {
-      margin: 12px 0; /* 上下16px间距，左右0 */
+      margin: 12px 0;
       padding: 12px;
       background: var(--qrcode-bg);
       border-radius: 8px;
@@ -230,7 +227,7 @@
     }
     
     .list-group-item .qrcode-container {
-      margin-top: 12px; /* 确保顶部间距 */
+      margin-top: 12px;
       margin-bottom: 6px;
     }
     
@@ -244,19 +241,22 @@
     @media (max-width: 992px) {
       .cards-container {
         flex-direction: column;
-      }      
+      }
+      
       .card-wrapper {
         min-width: 100%;
       }
-      .card {
-      height: auto; /* 在移动端恢复自动高度 */
+      
+      .card-wrapper:first-child .card,
+      .card-wrapper:last-child .card {
+        height: auto !important;
+        min-height: auto !important;
       }
     }
     
     @media (max-width: 768px) {
       .card {
         width: 100%;
-        height: auto;
       }
       
       .btn {
@@ -269,7 +269,7 @@
       }
       
       .qrcode-container {
-        margin: 12px 0; /* 移动端间距 */
+        margin: 12px 0;
         padding: 8px;
       }
     }
@@ -316,7 +316,7 @@
           <h1 class="display-5 fw-bold mb-3">
             <i class="fas fa-link me-2"></i>短链接生成器
           </h1>
-          <p class="lead">使用Cloudflare Worker和KV创建的免费短链接服务</p>
+          <p class="lead">使用 Cloudflare Worker 和 KV 创建的免费短链接服务</p>
         </div>
         
         <div class="cards-container">
@@ -398,8 +398,7 @@
                       <div class="text-muted small">
                         <i class="fas fa-external-link-alt me-1"></i> https://en.y2mate.is/s36/youtube-to-mp3.html
                       </div>
-                        <!-- 二维码容器 - 确保没有其他样式干扰 -->
-                        <div id="qrcode-4sure" class="qrcode-container"></div>
+                      <div id="qrcode-4sure" class="qrcode-container"></div>
                     </div>
                   </div>
                 </div>
