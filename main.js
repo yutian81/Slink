@@ -195,7 +195,6 @@ function deleteShortUrl(delKeyPhrase) {
     if (res.status == "200") {
       // 从本地存储中删除
       localStorage.removeItem(delKeyPhrase)
-
       // 重新加载列表
       loadUrlList()
 
@@ -326,47 +325,34 @@ function buildQrcode(shortUrl) {
   var options = {
     // 渲染方式: 'canvas', 'image' 或 'div'
     render: 'canvas',
-
     // 版本范围: 1-40
     minVersion: 1,
     maxVersion: 40,
-
     // 纠错等级: 'L', 'M', 'Q' 或 'H'
     ecLevel: 'Q',
-
     // 在现有画布上的偏移量
     left: 0,
     top: 0,
-
     // 尺寸(像素)
     size: 256,
-
     // 二维码颜色
     fill: '#000',
-
     // 背景色，null表示透明
     background: null,
-
     // 二维码内容
     text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
-
     // 圆角半径
     radius: 0,
-
     // 空白区域
     quiet: 0,
-
     // 模式
     mode: 0,
-
     mSize: 0.1,
     mPosX: 0.5,
     mPosY: 0.5,
-
     label: '无标签',
     fontname: 'sans',
     fontcolor: '#000',
-
     image: null
   };
   $("#qrcode-" + shortUrl.replace(/(:|\.|\[|\]|,|=|@)/g, "\\$1").replace(/(:|\#|\[|\]|,|=|@)/g, "\\$1") ).empty().qrcode(options);
