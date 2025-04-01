@@ -244,16 +244,19 @@
     @media (max-width: 992px) {
       .cards-container {
         flex-direction: column;
-      }
-      
+      }      
       .card-wrapper {
         min-width: 100%;
+      }
+      .card {
+      height: auto; /* 在移动端恢复自动高度 */
       }
     }
     
     @media (max-width: 768px) {
       .card {
         width: 100%;
+        height: auto;
       }
       
       .btn {
