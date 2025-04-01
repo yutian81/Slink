@@ -341,9 +341,9 @@ function buildQrcode(shortUrl) {
     // 二维码内容
     text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
     // 圆角半径
-    radius: 0,
+    radius: 4,
     // 空白区域
-    quiet: 0,
+    quiet: 2,
     // 模式
     mode: 0,
     mSize: 0.1,
