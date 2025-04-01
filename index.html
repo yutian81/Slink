@@ -105,7 +105,7 @@
     /* 右侧卡片 - 自动填充剩余空间 */
     .card-wrapper:last-child {
       flex: 1;
-      min-width: calc(100% - 615px);
+      min-width: 0;
     }
 
     .card:hover {
@@ -254,12 +254,19 @@
     @media (max-width: 992px) {
       .cards-container {
         flex-direction: column;
+        flex-wrap: wrap;
       }
       
       .card-wrapper {
         min-width: 100%;
       }
-      
+
+      .card-wrapper:first-child,
+      .card-wrapper:last-child {
+        flex: 0 0 100%;
+        width: 100%;
+      }
+        
       .card-wrapper:first-child .card,
       .card-wrapper:last-child .card {
         height: auto !important;
