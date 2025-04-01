@@ -241,13 +241,28 @@ async function handleRequest(request) {
           headers: response_header,
         })
       }
-
-      let value = await LINKS.get(req_key)
+      let value = await LINKS.get(req_key);
+      
+      // 对计数key特殊处理
+      if (req_key.endsWith("-count")) {
+        return new Response(JSON.stringify({
+          status: 200,
+          error: "",
+          key: req_key,
+          url: value || "0"  // 不存在则返回0
+        }), {
+          headers: response_header,
+        })
+      }
+      
+      // 普通key查询
       if (value != null) {
-        let jsonObjectRetrun = JSON.parse(`{"status":200, "error":"", "key":"", "url":""}`);
-        jsonObjectRetrun.key = req_key;
-        jsonObjectRetrun.url = value;
-        return new Response(JSON.stringify(jsonObjectRetrun), {
+        return new Response(JSON.stringify({
+          status: 200, 
+          error: "", 
+          key: req_key,
+          url: value
+        }), {
           headers: response_header,
         })
       } else {
@@ -334,7 +349,7 @@ async function handleRequest(request) {
   if (config.visit_count) {
     let count = await LINKS.get(path + "-count");
     if (count === null) {
-      await LINKS.put(path + "-count", "1");
+      await LINKS.put(path + "-count", "0");
     } else {
       count = parseInt(count) + 1;
       await LINKS.put(path + "-count", count.toString());
