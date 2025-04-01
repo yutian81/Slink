@@ -315,70 +315,33 @@ function loadKV() {
 
 // 生成二维码
 function buildQrcode(shortUrl) {
-  // 获取当前主题模式（深色/浅色）
-  const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  
-  var options = {
-    // 基本设置
-    render: 'canvas',       // 使用canvas渲染，性能更好
-    minVersion: 5,         // 最小版本从1提高到5，避免过简
-    maxVersion: 40,        // 最大版本限制到20，防止过大。可选1-40
-    ecLevel: 'H',          // 使用最高纠错等级H（可恢复30%数据）
-    
-    // 尺寸与定位
-    size: 192,             // 适度缩小尺寸
-    left: 0,
-    top: 0,
-    
-    // 颜色方案（适配深色模式）
-    fill: isDarkMode ? '#FFF' : '#2A2B2C', // 深色模式用白色，浅色用深灰
-    background: isDarkMode ? 'rgba(45, 55, 72, 0.8)' : null, // 深色模式半透明背景
-    
-    // 内容设置
-    text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
-    
-    // 样式优化
-    radius: 5,             // 适度增加圆角
-    quiet: 3,              // 保证足够的空白边距
-    mode: 0,               // 普通模式
-    
-    // 中心图标设置（如需）
-    mSize: 0.18,           // 稍大的中心区域
-    mPosX: 0.5,            // 居中
-    mPosY: 0.5,            // 居中
-    image: null,           // 可替换为logo路径
-    
-    // 标签设置（如需）
-    label: shortUrl,       // 显示短链作为标签
-    fontname: 'system-ui, -apple-system, sans-serif', // 现代字体
-    fontcolor: isDarkMode ? '#FFF' : '#2A2B2C',
-    labelFontsize: 12      // 标签字体大小
-  };
-
-  // 清除旧二维码并生成新二维码
+  const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   const container = $("#qrcode-" + shortUrl.replace(/([:.#[\]|=@])/g, "\\$1"));
-  container.empty();
   
-  // 添加容器样式
-  container.css({
-    'padding': '12px',
-    'background': isDarkMode ? 'rgba(45, 55, 72, 0.5)' : '#FFF',
-    'border-radius': '8px',
-    'display': 'inline-block'
-  });
-  
-  // 生成二维码
-  container.qrcode(options);
-  
-  // 添加悬停动画效果
-  container.hover(
-    function() {
-      $(this).css('transform', 'scale(1.03)');
-    },
-    function() {
-      $(this).css('transform', 'scale(1)');
-    }
-  );
+  try {
+    container.empty().addClass('qrcode-container');    
+    container.qrcode({
+      render: 'canvas',
+      size: 180,
+      minVersion: 5,
+      maxVersion: 20,
+      ecLevel: 'H',
+      fill: darkModeMediaQuery.matches ? '#FFF' : '#2A2B2C',
+      background: null,
+      text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
+      radius: 4,
+      quiet: 2
+    });
+
+    // 监听主题变化
+    darkModeMediaQuery.addEventListener('change', (e) => {
+      container.find('canvas').css('fill', e.matches ? '#FFF' : '#2A2B2C');
+    });
+
+  } catch (e) {
+    container.html('<div class="alert alert-warning">二维码生成失败</div>');
+    console.error("QR Code Error:", e);
+  }
 }
 
 function buildValueTxt(longUrl) {
