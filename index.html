@@ -71,7 +71,19 @@
       display: flex;
       flex-direction: column;
     }
+
+    .cards-container {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
     
+    .card-wrapper {
+      flex: 1;
+      min-width: 400px;
+    }
+
     /* 左侧卡片 - 固定高度 */
     .card-wrapper:first-child .card {
       height: 460px; /* 固定高度 */
@@ -204,19 +216,7 @@
     .text-muted {
       color: var(--text-secondary) !important;
     }
-    
-    .cards-container {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-    
-    .card-wrapper {
-      flex: 1;
-      min-width: 400px;
-    }
-    
+        
     /*二维码样式*/
     .qrcode-container {
       margin: 12px 0;
