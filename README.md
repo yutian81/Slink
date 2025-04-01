@@ -1,5 +1,8 @@
 # 短链系统
 
+# API 调用
+详见[API说明文档](https://github.com/yutian81/slink/blob/main/API.md)
+
 # 原作者教程
 <details>
 <summary>点击展开</summary>
