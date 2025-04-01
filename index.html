@@ -1,87 +1,224 @@
 <!doctype html>
-<html>
+<html lang="zh-CN">
 <head>
-  <meta http-equiv="content-type" content="txt/html; charset=utf-8" />
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-  <title>短链接生成器</title>
-  <link rel="stylesheet" href="https://crazypeace.github.io/Url-Shorten-Worker/styles.css">
-  <!-- 如果使用CDN资源就放开这一句, 把上面那一句注释掉
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/crazypeace/Url-Shorten-Worker/styles.css">
-  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>短链接生成器 | Cloudflare Worker</title>
+  <link rel="stylesheet" href="https://yutian81.github.io/slink/styles.css">
+  <style>
+    :root {
+      --primary-color: #4e73df;
+      --secondary-color: #f8f9fc;
+      --accent-color: #2e59d9;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%);
+      min-height: 100vh;
+      padding: 2rem 0;
+    }
+    
+    .card {
+      border-radius: 0.5rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+      transition: all 0.3s;
+    }
+    
+    .card:hover {
+      box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .card-header {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      border-radius: 0.5rem 0.5rem 0 0 !important;
+      padding: 1rem 1.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+    
+    .input-group-text {
+      background-color: var(--secondary-color);
+      font-weight: 500;
+    }
+    
+    #urlList {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .list-group-item {
+      transition: all 0.2s;
+    }
+    
+    .list-group-item:hover {
+      background-color: rgba(78, 115, 223, 0.05);
+    }
+    
+    .footer-link {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    .footer-link:hover {
+      color: var(--accent-color);
+      text-decoration: underline;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary-color: #4e73df;
+        --secondary-color: #2d3748;
+        --accent-color: #3a7bd5;
+      }
+      
+      body {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+      }
+      
+      .card {
+        background-color: #2d3748;
+      }
+      
+      .form-control, .input-group-text {
+        background-color: #4a5568;
+        color: #f7fafc;
+        border-color: #4a5568;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="d-flex align-items-start flex-wrap">
-  <div class="card shadow m-3">
-    <h5 class="card-header">使用Cloudflare Worker和KV免费创建的短链接服务</h5>
-    <div class="card-body">
-      <h5 class="card-title"> </h5>
-
-      <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon1">长网址</span>
-        <input type="text" class="form-control" id="longURL" aria-describedby="basic-addon1" placeholder="例如：https://example.com/" oninput="loadUrlList()">
-      </div>
-
-      <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon2">自定义短链</span>
-        <input type="text" class="form-control" id="keyPhrase" aria-describedby="basic-addon2" placeholder="自定义路径">
-      </div>
-
-      <div class="input-group mb-3">
-        <button class="btn btn-primary" type="button" onclick='shorturl()' id="addBtn">生成短链</button>
-      </div>
-
-      <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon3">密码</span>
-        <input class="form-control" type="text" value="__PASSWORD__" readonly="true" id="passwordText" aria-describedby="basic-addon3">
-      </div>
-
-    </div>
-    
-    <div class="card-footer">
-      <span> <a href="https://github.com/crazypeace/Url-Shorten-Worker/" target="_self">GitHub项目地址</a> </span>
-    </div>
-  </div>
-
-  <div class="card shadow m-3">
-    <h5 class="card-header">本地存储列表</h5>
-    <div class="card-body">
-      <h5 class="card-title"> </h5>
-      <div class="input-group mb-3">
-        <button class="btn btn-success" type="button" onclick='loadUrlList()' id="loadListBtn">加载本地存储</button>
-        <button class="btn btn-danger" type="button" onclick='clearLocalStorage()' id="clearlocalStgBtn">清空本地存储</button>
-        <button class="btn btn-info" type="button" onclick='loadKV()' id="loadKV2localStgBtn">从KV加载到本地</button>
-      </div>
-
-      <div class="card-text">
-        <div classs="list-group" id="urlList">
-          <div class="mb-3 list-group-item">
-            <div class="input-group">
-              <button type="button" class="btn btn-danger" onclick='deleteShortUrl("4sure")' id="delBtn-4sure">删除</button>
-              <button type="button" class="btn btn-info" onclick='queryVisitCount("4sure")' id="qryCntBtn-4sure">查询</button>
-              <span class="form-control">https://1way.eu.org/4sure</span>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="text-center mb-4">
+          <h1 class="display-5 fw-bold mb-3">
+            <i class="fas fa-link me-2"></i>短链接生成器
+          </h1>
+          <p class="lead">使用Cloudflare Worker和KV创建的免费短链接服务</p>
+        </div>
+        
+        <div class="card shadow mb-4">
+          <div class="card-header">
+            <i class="fas fa-plus-circle me-2"></i>生成新短链接
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="longURL" class="form-label fw-bold">长网址</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-link"></i></span>
+                <input type="text" class="form-control" id="longURL" placeholder="例如：https://example.com/" oninput="loadUrlList()">
+              </div>
             </div>
-            <div class="form-control">
-              https://en.y2mate.is/s36/youtube-to-mp3.html
+            
+            <div class="mb-3">
+              <label for="keyPhrase" class="form-label fw-bold">自定义短链（可选）</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                <input type="text" class="form-control" id="keyPhrase" placeholder="输入自定义路径">
+              </div>
             </div>
+            
+            <div class="mb-3">
+              <label for="passwordText" class="form-label fw-bold">管理密码</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input class="form-control" type="text" value="__PASSWORD__" readonly id="passwordText">
+              </div>
+            </div>
+            
+            <div class="d-grid">
+              <button class="btn btn-primary btn-lg" type="button" onclick="shorturl()" id="addBtn">
+                <i class="fas fa-magic me-2"></i>生成短链
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card shadow">
+          <div class="card-header">
+            <i class="fas fa-list me-2"></i>链接管理
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-4">
+              <button class="btn btn-success" type="button" onclick="loadUrlList()" id="loadListBtn">
+                <i class="fas fa-sync-alt me-2"></i>刷新列表
+              </button>
+              <button class="btn btn-danger" type="button" onclick="clearLocalStorage()" id="clearlocalStgBtn">
+                <i class="fas fa-trash-alt me-2"></i>清空本地
+              </button>
+              <button class="btn btn-info" type="button" onclick="loadKV()" id="loadKV2localStgBtn">
+                <i class="fas fa-cloud-download-alt me-2"></i>从KV加载
+              </button>
+            </div>
+            
+            <div class="card-text">
+              <div class="list-group" id="urlList">
+                <!-- 示例项目（实际内容由JS动态生成） -->
+                <div class="mb-3 list-group-item">
+                  <div class="d-flex align-items-center mb-2">
+                    <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteShortUrl('4sure')" id="delBtn-4sure">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm me-2" onclick="queryVisitCount('4sure')" id="qryCntBtn-4sure">
+                      <i class="fas fa-chart-line"></i>
+                    </button>
+                    <span class="fw-bold flex-grow-1">https://1way.eu.org/4sure</span>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="buildQrcode('4sure')">
+                      <i class="fas fa-qrcode"></i>
+                    </button>
+                  </div>
+                  <div class="text-muted small">
+                    <i class="fas fa-external-link-alt me-1"></i> https://en.y2mate.is/s36/youtube-to-mp3.html
+                  </div>
+                  <div id="qrcode-4sure" class="mt-2 text-center"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer text-center">
+            <a href="https://github.com/crazypeace/Url-Shorten-Worker/" class="footer-link" target="_blank">
+              <i class="fab fa-github me-1"></i> GitHub项目地址
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
-  </div>
 
-  <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+  <!-- 结果模态框 -->
+  <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="resultModalLabel">生成结果</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="resultModalLabel">
+            <i class="fas fa-check-circle me-2"></i>生成结果
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="关闭"></button>
         </div>
-        <div class="modal-body" id="result">暂无结果</div>
+        <div class="modal-body">
+          <div class="alert alert-info" id="result">暂无结果</div>
+        </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick='copyurl("result")' data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="已复制！">复制</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" onclick="copyurl('result')" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="已复制！">
+            <i class="fas fa-copy me-2"></i>复制
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>关闭
+          </button>
         </div>
       </div>
     </div>
@@ -90,10 +227,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/gh/lrsjng/jquery-qrcode@0.18.0/dist/jquery-qrcode.min.js" crossorigin="anonymous"></script>
-
-  <script src="https://crazypeace.github.io/Url-Shorten-Worker/main.js" crossorigin="anonymous"></script>
-  <!-- 如果使用CDN资源就放开这一句, 把上面那一句注释掉
-    <script src="https://cdn.jsdelivr.net/gh/crazypeace/Url-Shorten-Worker/main.js" crossorigin="anonymous"></script>
-  -->
+  <script src="https://yutian81.github.io/slink/main.js" crossorigin="anonymous"></script>
 </body>
 </html>
