@@ -118,43 +118,29 @@ function copyurl(id, attr) {
 }
 
 // 点击复制短链接
-function copyShortUrl(url) {
-  navigator.clipboard.writeText(url).then(() => {
-    // 创建临时提示元素
-    const tooltip = document.createElement('div');
-    tooltip.className = 'copy-tooltip';
-    tooltip.textContent = '已复制!';
-    tooltip.style.position = 'fixed';
-    tooltip.style.backgroundColor = 'rgba(0,0,0,0.7)';
-    tooltip.style.color = 'white';
-    tooltip.style.padding = '5px 10px';
-    tooltip.style.borderRadius = '4px';
-    tooltip.style.zIndex = '9999';
-    tooltip.style.transition = 'opacity 0.3s';
-    
-    // 定位到点击位置附近
-    const clickX = event.clientX;
-    const clickY = event.clientY;
-    tooltip.style.left = `${clickX - 30}px`;
-    tooltip.style.top = `${clickY - 40}px`;
-    document.body.appendChild(tooltip);
-    
-    // 1秒后淡出移除
+function copyShortUrl(url, event) {
+  // 找到最近的查询按钮
+  const qryBtn = event.target.closest('.list-group-item').querySelector('[id^="qryCntBtn-"]');
+  const originalHtml = qryBtn.innerHTML;
+  navigator.clipboard.writeText(url).then(() => { 
+    // 修改查询按钮文字
+    qryBtn.innerHTML = '<i class="fas fa-check"></i>已复制';
+    // 2秒后恢复
     setTimeout(() => {
-      tooltip.style.opacity = '0';
-      setTimeout(() => {
-        document.body.removeChild(tooltip);
-      }, 300);
-    }, 1000);
+      qryBtn.innerHTML = originalHtml;
+    }, 2000);    
   }).catch(err => {
     // 备用复制方法
-    const textarea = document.createElement('textarea');
+    const textarea = document.createElement('textarea');  
     textarea.value = url;
     document.body.appendChild(textarea);
     textarea.select();
     document.execCommand('copy');
-    document.body.removeChild(textarea);
-    alert('已复制到剪贴板: ' + url);
+    document.body.removeChild(textarea);  
+    qryBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+    setTimeout(() => {
+      qryBtn.innerHTML = originalHtml;
+    }, 2000);
   });
 }
 
