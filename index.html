@@ -210,7 +210,7 @@
     }
     
     .footer-link {
-      color: var(--text-primary);
+      color: var(--text-primary); 
       text-decoration: none !important;
       transition: all 0.2s;
     }
@@ -268,29 +268,71 @@
       }
     }
     
+    /* 适配手机 */
     @media (max-width: 768px) {
-      .card {
-        width: 100%;
+      .card-wrapper {
+        min-width: 100% !important;
+        width: 100% !important;
       }
-      
-      .btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+      .card-wrapper:first-child {
+        min-width: 100% !important;
       }
-      
-      #urlList {
-        max-height: 300px;
-      }
-      
-      .qrcode-container {
-        margin: 12px 0;
-        padding: 8px;
-      }
-    }
-    
-    @media (max-width: 576px) {
       .card-body, .card-footer {
         padding: 1rem;
+      }
+      .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      } 
+      #urlList {
+        max-height: 300px;
+      }  
+      .list-group-item {
+        padding: 0.75rem;
+      }  
+      .list-group-item .btn {
+        min-width: 36px;
+        padding: 0.3rem 0.5rem;
+      }
+      .list-group-item .btn i {
+        margin-right: 0 !important;
+      }
+     .list-group-item .btn span {
+        display: none;
+      }  
+     .qrcode-container {
+        margin: 8px 0;
+        padding: 6px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .card-header {
+        padding: 0.75rem 1rem;
+      }
+      .form-control, .input-group-text {
+        padding: 0.6rem 0.8rem;
+      }
+      textarea.form-control {
+        min-height: 44px;
+      } 
+      .d-flex.justify-content-between.mb-4 {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .d-flex.justify-content-between.mb-4 .btn {
+        flex: 1 1 30%;
+        min-width: 100px;
+      }
+      .footer-link {
+        display: block;
+        margin: 0.25rem 0;
+      }
+      .card-footer p {
+        font-size: 0.8rem;
+      }
+      .modal-content {
+        margin: 0.5rem;
       }
     }
     
@@ -315,7 +357,6 @@
         --card-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.3);
         --card-hover-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
       }
-
       .list-group-item:hover {
         background-color: rgba(78, 115, 223, 0.1);
       }
@@ -342,7 +383,7 @@
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label for="longURL" class="form-label fw-bold">长网址</label>
+                  <label for="longURL" class="form-label fw-bold">长网址</label> 
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-link"></i></span>
                     <textarea class="form-control" id="longURL" rows="1" placeholder="例如：https://example.com/" oninput="loadUrlList()"></textarea>
@@ -415,7 +456,8 @@
                                 onclick="deleteShortUrl('4sure')" 
                                 id="delBtn-4sure"
                                 aria-label="删除">
-                          <i class="fas fa-trash me-1"></i> X
+                          <i class="fas fa-trash me-1"></i>
+                          <span class="d-none d-md-inline">X</span>
                         </button>
                         <!-- 统计按钮 --> 
                         <button type="button"
@@ -423,7 +465,8 @@
                                 onclick="queryVisitCount('4sure')"
                                 id="qryCntBtn-4sure"
                                 aria-label="访问统计">
-                          <i class="fas fa-chart-line me-1"></i> ?
+                          <i class="fas fa-chart-line me-1"></i>
+                          <span class="d-none d-md-inline">?</span>
                         </button> 
                         <!-- 短链接显示 -->
                         <span class="fw-bold flex-grow-1 text-truncate" title="https://1way.eu.org/4sure">
@@ -435,7 +478,8 @@
                                 onclick="buildQrcode('4sure')"
                                 id="qrcodeBtn-4sure"
                                 aria-label="生成二维码">
-                          <i class="fas fa-qrcode me-1"></i> QR
+                          <i class="fas fa-qrcode me-1"></i>
+                          <span class="d-none d-md-inline">QR</span>
                         </button>
                       </div>
                       <div class="text-muted small">
