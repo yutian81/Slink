@@ -10,7 +10,7 @@
     else if(window.screen.width<=769)
     document.getElementsByTagName('meta')['viewport'].content="initial-scale=0.6, maximum-scale=1.0, minimum-scale=0.6, user-scalable=no"
   </script>
-  <title>Shorter Url</title>
+  <title>短链接生成</title>
   <style>
     * {
       margin: 0;
@@ -181,15 +181,15 @@ color: #3F76FF;
     
     <div class="card-body">
         
-      <h5 class="bigtitle">Shorten your URLs !</h5>
+      <h5 class="bigtitle">缩短您的网址！</h5>
       
-      <h5 class="card-title">Please enter the long URL to be shortened :</h5>
+      <h5 class="card-title">请输入需要缩短的长网址：</h5>
       <div class="formm">
-        <input type="text" class="form-control" placeholder="Example: https://example.com/" id="text">
-        <button class="btn-cus" type="button" onclick='shorturl()' id="searchbtn">Shorten it</button>
+        <input type="text" class="form-control" placeholder="例如：https://example.com/" id="text">
+        <button class="btn-cus" type="button" onclick='shorturl()' id="searchbtn">一键缩短</button>
       </div>    
       <div class="card-text">
-        Powered by <a href="https://github.com/xyTom/Url-Shorten-Worker/" target="_self">xyTom</a>
+        技术支持由 <a href="https://github.com/xyTom/Url-Shorten-Worker/" target="_self">xyTom</a> 提供
       </div>
       <p id="notice"></p>             
     </div>
@@ -198,15 +198,15 @@ color: #3F76FF;
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Result</h5>
+          <h5 class="modal-title" id="exampleModalLabel">生成结果</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body" id="result">No Result</div>
+        <div class="modal-body" id="result">暂无结果</div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick='copyurl("result")' data-toggle="popover" data-placement="bottom" data-content="Copied!">Copy</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>    
+          <button type="button" class="btn btn-primary" onclick='copyurl("result")' data-toggle="popover" data-placement="bottom" data-content="已复制！">复制</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>    
         </div>
       </div>
     </div>
