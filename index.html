@@ -394,37 +394,10 @@
     </div>
   </div>
   
-  <!-- 修复后的脚本加载部分 -->
+  <!-- 加载js -->
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/lrsjng/jquery-qrcode@0.18.0/dist/jquery-qrcode.min.js"></script>
-  
-  <!-- 主脚本加载逻辑 -->
-  <script>
-    // 确保DOM完全加载
-    document.addEventListener('DOMContentLoaded', function() {
-      // 动态加载主脚本
-      const script = document.createElement('script');
-      script.src = 'https://yutian81.github.io/slink/main.js';
-      script.crossOrigin = 'anonymous';
-      
-      // 添加错误处理
-      script.onerror = function() {
-        console.error('主脚本加载失败，尝试本地备用');
-        const fallbackScript = document.createElement('script');
-        fallbackScript.src = 'main.js';
-        document.body.appendChild(fallbackScript);
-      };
-      
-      document.body.appendChild(script);
-      
-      // 临时按钮事件处理（防止主脚本加载失败时完全无响应）
-      document.getElementById('addBtn').addEventListener('click', function() {
-        if(typeof shorturl === 'undefined') {
-          alert('脚本正在加载中，请稍后再试');
-        }
-      });
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/gh/yutian81/slink/main.js"></script>
 </body>
 </html>
