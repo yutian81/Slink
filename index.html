@@ -69,7 +69,14 @@
       margin-bottom: 1.5rem;
       height: auto;
       display: flex;
+      flex: 1;
       flex-direction: column;
+      min-height: 0;
+    }
+
+    /* 左侧卡片 */
+    .card-wrapper:first-child .card-body {
+      flex: 1; /* 让body填充可用空间 */
     }
 
     /* 右侧卡片 */
@@ -203,10 +210,11 @@
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
-      align-items: flex-start;
+      align-items: stretch;
     }
     
     .card-wrapper {
+      display: flex;
       flex: 1;
       min-width: 400px;
     }
