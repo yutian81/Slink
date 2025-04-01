@@ -8,9 +8,29 @@
   <title>短链接生成器 | Cloudflare Worker</title>
   <style>
     :root {
+      /* 基础颜色变量 */
       --primary-color: #4e73df;
       --secondary-color: #f8f9fc;
-      --accent-color: #2e59d9;
+      --accent-color: #2e59d9; 
+      /* 文字颜色 */
+      --text-primary: #2a2b2c;
+      --text-secondary: #6c757d;
+      /* 背景渐变 */
+      --bg-gradient-start: #f8f9fc;
+      --bg-gradient-end: #e9ecef;
+      /* 组件颜色 */
+      --card-bg: white;
+      --input-bg: white;
+      --border-color: #ced4da;
+      /* 辅助元素 */
+      --scrollbar-track: #f1f1f1;
+      --card-footer-bg: rgba(0, 0, 0, 0.03);
+      --card-footer-border: rgba(0, 0, 0, 0.05);
+      --qrcode-bg: white;
+      --qrcode-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      /* 阴影效果 */
+      --card-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.15);
+      --card-hover-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.2);
     }
     
     * {
@@ -22,10 +42,10 @@
     
     body {
       font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-      background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
       min-height: 100vh;
       padding: 2rem 0;
-      color: #2a2b2c;
+      color: var(--text-primary);
     }
     
     img {
@@ -41,10 +61,10 @@
     }
     
     .card {
-      background-color: white;
+      background-color: var(--card-bg);
       border: none;
       border-radius: 0.5rem;
-      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+      box-shadow: var(--card-shadow);
       transition: all 0.3s ease;
       margin-bottom: 1.5rem;
       height: 100%;
@@ -53,7 +73,7 @@
     }
     
     .card:hover {
-      box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+      box-shadow: var(--card-hover-shadow);
       transform: translateY(-2px);
     }
     
@@ -74,8 +94,8 @@
     }
     
     .card-footer {
-      background-color: rgba(0, 0, 0, 0.03);
-      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      background-color: var(--card-footer-bg);
+      border-top: 1px solid var(--card-footer-border);
       padding: 1rem 1.5rem;
     }
     
@@ -83,6 +103,8 @@
       padding: 0.75rem 1rem;
       font-size: 1rem;
       transition: all 0.2s;
+      background-color: var(--input-bg);
+      border-color: var(--border-color);
     }
     
     .form-control:focus {
@@ -109,14 +131,14 @@
     .input-group-text {
       background-color: var(--secondary-color);
       font-weight: 500;
-      color: #495057;
+      color: var(--text-secondary);
     }
     
     #urlList {
       max-height: 400px;
       overflow-y: auto;
       scrollbar-width: thin;
-      scrollbar-color: var(--primary-color) #f1f1f1;
+      scrollbar-color: var(--primary-color) var(--scrollbar-track);
     }
     
     #urlList::-webkit-scrollbar {
@@ -124,8 +146,7 @@
     }
     
     #urlList::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 4px;
+      background: var(--scrollbar-track);
     }
     
     #urlList::-webkit-scrollbar-thumb {
@@ -140,6 +161,7 @@
       border: 1px solid rgba(0, 0, 0, 0.08);
       transition: all 0.2s;
       font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background-color: var(--input-bg);
     }
     
     .list-group-item:hover {
@@ -168,7 +190,7 @@
     }
     
     .text-muted {
-      color: #6c757d !important;
+      color: var(--text-secondary) !important;
     }
     
     .cards-container {
@@ -181,7 +203,22 @@
       flex: 1;
       min-width: 400px;
     }
+    /*二维码样式*/
+    .qrcode-container {
+      margin: 12px auto;
+      transition: all 0.3s ease;
+      max-width: 100%;
+      text-align: center;
+      background: var(--qrcode-bg);
+    }
     
+    .qrcode-container canvas {
+      display: block;
+      margin: 0 auto;
+      box-shadow: var(--qrcode-shadow);
+    }
+    
+    /* 响应式设计 */
     @media (max-width: 992px) {
       .cards-container {
         flex-direction: column;
@@ -205,6 +242,10 @@
       #urlList {
         max-height: 300px;
       }
+      
+      .qrcode-container {
+        padding: 8px;
+      }
     }
     
     @media (max-width: 576px) {
@@ -213,45 +254,30 @@
       }
     }
     
+    /* 深色模式 */
     @media (prefers-color-scheme: dark) {
       :root {
         --primary-color: #4e73df;
         --secondary-color: #2d3748;
         --accent-color: #3a7bd5;
+        --text-primary: #f8f9fa;
+        --text-secondary: #adb5bd;
+        --bg-gradient-start: #1a202c;
+        --bg-gradient-end: #2d3748;
+        --card-bg: #2d3748;
+        --input-bg: #4a5568;
+        --border-color: #4a5568;
+        --scrollbar-track: #2d3748;
+        --card-footer-bg: rgba(0, 0, 0, 0.1);
+        --card-footer-border: rgba(255, 255, 255, 0.05);
+        --qrcode-bg: rgba(45, 55, 72, 0.8);
+        --qrcode-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --card-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.3);
+        --card-hover-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
       }
-      
-      body {
-        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-        color: #d9d9d9;
-      }
-      
-      .card {
-        background-color: #2d3748;
-        box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.3);
-      }
-      
-      .form-control, .input-group-text {
-        background-color: #4a5568;
-        color: #f7fafc;
-        border-color: #4a5568;
-      }
-      
-      .form-control:focus {
-        box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.5);
-      }
-      
-      .list-group-item {
-        background-color: #4a5568;
-        border-color: #4a5568;
-        color: #f7fafc;
-      }
-      
-      .text-muted {
-        color: #a0aec0 !important;
-      }
-      
-      #urlList::-webkit-scrollbar-track {
-        background: #2d3748;
+
+      .list-group-item:hover {
+        background-color: rgba(78, 115, 223, 0.1);
       }
     }
   </style>
