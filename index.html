@@ -201,27 +201,13 @@
       border-color: rgba(78, 115, 223, 0.2);
     }
 
-    /* 添加链接样式 */
+    /* 点击复制短链 */
     .list-group-item .text-primary {
-      transition: all 0.2s;
       cursor: pointer;
-      display: inline-block;
-      max-width: 100%;
+      transition: color 0.2s;
     }
     .list-group-item .text-primary:hover {
-      color: var(--accent-color) !important;
-      text-decoration: underline;
-    }
-
-    /* 工具提示动画 */
-    @keyframes fadeTooltip {
-      0% { opacity: 0; transform: translateY(5px); }
-      20% { opacity: 1; transform: translateY(0); }
-      80% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-5px); }
-    }
-    .copy-tooltip {
-      animation: fadeTooltip 1.3s ease forwards;
+      color: var(--accent-color);
     }
     
     .modal-content {
@@ -472,36 +458,34 @@
                       <div class="d-flex align-items-center mb-2">
                         <!-- 删除按钮 -->
                         <button type="button"  
-                                class="btn btn-danger btn-sm me-2"  
+                                class="btn btn-danger btn-sm me-1"  
                                 onclick="deleteShortUrl('4sure')" 
                                 id="delBtn-4sure"
                                 aria-label="删除">
                           <i class="fas fa-trash me-1"></i>
-                          <span class="d-none d-md-inline">X</span>
+                          <span class="d-none d-md-inline">删除</span>
                         </button>
                         <!-- 统计按钮 --> 
                         <button type="button"
-                                class="btn btn-info btn-sm me-2"
+                                class="btn btn-info btn-sm me-1"
                                 onclick="queryVisitCount('4sure')"
                                 id="qryCntBtn-4sure"
                                 aria-label="访问统计">
                           <i class="fas fa-chart-line me-1"></i>
-                          <span class="d-none d-md-inline">?</span> 
+                          <span class="d-none d-md-inline">统计</span> 
                         </button> 
                         <!-- 短链接显示 -->
                         <span class="fw-bold flex-grow-1 text-truncate text-primary" 
-                          style="cursor: pointer;" 
-                          onclick="copyShortUrl('https://1way.eu.org/4sure')" 
-                          title="点击复制短链接">
+                          onclick="copyShortUrl('https://1way.eu.org/4sure', event)">
                           https://1way.eu.org/4sure
-                        </span>          
+                        </span>                 
                         <!-- 二维码按钮 -->
                         <button type="button"
                                 class="btn btn-secondary btn-sm"
                                 onclick="buildQrcode('4sure')"
-                                id="qrcodeBtn-4sure"
+                                id="qrcodeBtn-4sure" 
                                 aria-label="生成二维码">
-                          <i class="fas fa-qrcode me-1"></i>
+                          <i class="fas fa-qrcode me-1"></i> 
                           <span class="d-none d-md-inline">QR</span>
                         </button>
                       </div>
