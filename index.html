@@ -180,7 +180,7 @@
     
     .footer-link {
       color: var(--primary-color);
-      text-decoration: none;
+      text-decoration: none !important; /* 强制移除下划线 */
       transition: all 0.2s;
     }
     
@@ -203,13 +203,16 @@
       flex: 1;
       min-width: 400px;
     }
+    
     /*二维码样式*/
     .qrcode-container {
-      margin: 12px auto;
+      margin: 12px auto; /* 上下间距 */
+      padding: 12px; /* 内部留白 */
       transition: all 0.3s ease;
       max-width: 100%;
       text-align: center;
       background: var(--qrcode-bg);
+      border-radius: 8px; /* 添加圆角 */
     }
     
     .qrcode-container canvas {
