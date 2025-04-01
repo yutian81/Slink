@@ -174,7 +174,7 @@ function addUrlToList(shortUrl, longUrl) {
   // 显示二维码按钮
   let qrcodeBtn = document.createElement('button')  
   qrcodeBtn.setAttribute('type', 'button')
-  qrcodeBtn.classList.add("btn", "btn-info")
+  qrcodeBtn.classList.add("btn", "btn-secondary")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
   qrcodeBtn.innerText = "QR"
