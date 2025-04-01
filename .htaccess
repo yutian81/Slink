@@ -1,3 +1,0 @@
-<Files "main.js">
-  Header set Access-Control-Allow-Origin "*"
-</Files>
