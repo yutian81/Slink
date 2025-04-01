@@ -130,3 +130,21 @@ POST / (Worker 根路径)
   ]
 }
 ```
+
+## 使用示例
+
+### 生成短链接
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"cmd":"add","url":"https://example.com/long-url","key":"short","password":"your_password"}' \
+  https://your-worker.workers.dev/
+```
+
+### 查询短链接
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"cmd":"qry","key":"short","password":"your_password"}' \
+  https://your-worker.workers.dev/
+```
