@@ -396,15 +396,33 @@
                     <!-- 示例项目（实际内容由JS动态生成） -->
                     <div class="mb-3 list-group-item">
                       <div class="d-flex align-items-center mb-2">
-                        <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteShortUrl('4sure')" id="delBtn-4sure">
-                          <i class="fas fa-trash"></i>
+                        <!-- 删除按钮 -->
+                        <button type="button" 
+                                class="btn btn-danger btn-sm me-2" 
+                                onclick="deleteShortUrl('4sure')" 
+                                id="delBtn-4sure"
+                                aria-label="删除">
+                          <i class="fas fa-trash me-1"></i> 删除
                         </button>
-                        <button type="button" class="btn btn-info btn-sm me-2" onclick="queryVisitCount('4sure')" id="qryCntBtn-4sure">
-                          <i class="fas fa-chart-line"></i>
-                        </button>
-                        <span class="fw-bold flex-grow-1">https://1way.eu.org/4sure</span>
-                        <button type="button" class="btn btn-secondary btn-sm me-2" onclick="buildQrcode('4sure')">
-                          <i class="fas fa-qrcode"></i>
+                        <!-- 统计按钮 --> 
+                        <button type="button"
+                                class="btn btn-info btn-sm me-2"
+                                onclick="queryVisitCount('4sure')"
+                                id="qryCntBtn-4sure"
+                                aria-label="访问统计">
+                          <i class="fas fa-chart-line me-1"></i> 统计
+                        </button> 
+                        <!-- 短链接显示 -->
+                        <span class="fw-bold flex-grow-1 text-truncate" title="https://1way.eu.org/4sure">
+                          https://1way.eu.org/4sure
+                        </span>
+                        <!-- 二维码按钮 -->
+                        <button type="button"
+                                class="btn btn-secondary btn-sm"
+                                onclick="buildQrcode('4sure')"
+                                id="qrcodeBtn-4sure"
+                                aria-label="生成二维码">
+                          <i class="fas fa-qrcode me-1"></i> 二维码
                         </button>
                       </div>
                       <div class="text-muted small">
