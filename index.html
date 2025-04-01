@@ -67,7 +67,13 @@
       box-shadow: var(--card-shadow);
       transition: all 0.3s ease;
       margin-bottom: 1.5rem;
-      height: 100%;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 右侧卡片 */
+    .card-wrapper:last-child .card {
       display: flex;
       flex-direction: column;
     }
@@ -197,6 +203,7 @@
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
+      align-items: flex-start;
     }
     
     .card-wrapper {
