@@ -345,10 +345,21 @@
                 
                 <div class="mb-3">
                   <label for="passwordText" class="form-label fw-bold">管理密码</label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    <input class="form-control" type="text" value="__PASSWORD__" readonly id="passwordText">
-                  </div>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  <input class="form-control" 
+                         type="password" 
+                         value="__PASSWORD__" 
+                         readonly 
+                         id="passwordText"
+                         onfocus="this.type='text'" 
+                         onblur="this.type='password'">
+                  <button class="btn btn-outline-secondary" 
+                          type="button" 
+                          onclick="copyurl('passwordText')">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                </div>
                 </div>
                 
                 <div class="d-grid">
