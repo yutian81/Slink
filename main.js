@@ -159,7 +159,7 @@ function addUrlToList(shortUrl, longUrl) {
   // 查询访问次数按钮
   let qryCntBtn = document.createElement('button')
   qryCntBtn.setAttribute('type', 'button')
-  qryCntBtn.classList.add("btn", "btn-outline-info", "btn-sm")
+  qryCntBtn.classList.add("btn", "btn-info")
   qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
   qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
   qryCntBtn.innerHTML = '<i class="fas fa-chart-line me-1"></i>查询';
@@ -177,7 +177,7 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerHTML = '<i class="fas fa-qrcode me-1"></i> 二维码'
+  qrcodeBtn.innerHTML = '<i class="fas fa-qrcode me-1"></i>二维码'
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
