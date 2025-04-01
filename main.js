@@ -153,12 +153,8 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
   //qrcodeBtn.innerText = "二维码"
-  let qrcodeIcon = document.createElement('i');
-  qrcodeIcon.classList.add("fas", "fa-qrcode");
-  qrcodeBtn.appendChild(qrcodeIcon);
-  keyItem.appendChild(qrcodeBtn);
-  //keyItem.appendChild(qrcodeBtn)
-  //child.appendChild(keyItem)
+  keyItem.appendChild(qrcodeBtn)
+  child.appendChild(keyItem)
 
   // 二维码占位元素
   let qrcodeItem = document.createElement('div');
