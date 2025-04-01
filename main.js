@@ -117,10 +117,8 @@ function loadUrlList() {
 
 function addUrlToList(shortUrl, longUrl) {
   let urlList = document.querySelector("#urlList")
-
   let child = document.createElement('div')
   child.classList.add("mb-3", "list-group-item")
-
   let keyItem = document.createElement('div')
   keyItem.classList.add("input-group")
 
@@ -154,10 +152,13 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerText = "二维码"
-  keyItem.appendChild(qrcodeBtn)
-  
-  child.appendChild(keyItem)
+  //qrcodeBtn.innerText = "二维码"
+  let qrcodeIcon = document.createElement('i');
+  qrcodeIcon.classList.add("fas", "fa-qrcode");
+  qrcodeBtn.appendChild(qrcodeIcon);
+  keyItem.appendChild(qrcodeBtn);
+  //keyItem.appendChild(qrcodeBtn)
+  //child.appendChild(keyItem)
 
   // 二维码占位元素
   let qrcodeItem = document.createElement('div');
@@ -171,7 +172,8 @@ function addUrlToList(shortUrl, longUrl) {
 }
 
 function clearLocalStorage() {
-  localStorage.clear()
+  localStorage.clear();
+  loadUrlList();
 }
 
 function deleteShortUrl(delKeyPhrase) {
@@ -304,7 +306,9 @@ function loadKV() {
         // 保存到本地存储
         localStorage.setItem(keyPhrase, valueLongURL);  
       });
-
+      
+      // 加载URL列表
+      loadUrlList();
     } else {
       document.getElementById("result").innerHTML = res.error;
       // 显示结果弹窗
