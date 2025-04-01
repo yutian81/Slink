@@ -153,6 +153,10 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
   //qrcodeBtn.innerText = "二维码"
+  //keyItem.appendChild(qrcodeBtn)
+  //child.appendChild(keyItem)
+  qrcodeIcon.classList.add("fas", "fa-qrcode")
+  qrcodeBtn.appendChild(qrcodeIcon)
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
@@ -163,7 +167,6 @@ function addUrlToList(shortUrl, longUrl) {
 
   // 长链接信息
   child.appendChild(buildValueItemFunc(longUrl))
-
   urlList.append(child)
 }
 
