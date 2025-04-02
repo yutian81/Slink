@@ -1,4 +1,152 @@
-# 短链系统
+# Slink 短链接使用说明
+
+## 一、部署教程
+
+### 1. 准备工作
+- 一个 Cloudflare 账户
+- 一个域名（可选，但推荐使用）
+- GitHub 账户（用于获取源码）
+
+### 2. 部署步骤
+
+#### 方法一：使用 Cloudflare Workers
+
+1. **登录 Cloudflare 仪表板**
+   - 进入 Workers 和 Pages 页面
+   - 创建一个 worker
+
+2. **配置 Worker**
+   - 服务名称：输入你的短链接服务名称（如"slink"）
+   - 选择"HTTP 处理程序"
+   - 点击"创建服务"
+
+3. **上传代码**
+   - 复制 [GitHub 仓库](https://github.com/yutian81/slink/) 中的 `_worker.js` 内容
+   - 粘贴到 Worker 编辑器中
+   - 点击"保存并部署"
+
+4. **配置 KV 命名空间**(必须)
+   - 在 Worker 设置中找到"KV 命名空间绑定"
+   - 创建新的 KV 命名空间（如"LINKS"）
+   - 变量名称填写"LINKS"
+   - 保存设置
+
+5. **配置环境变量**
+   - 在 Worker 设置中找到"变量"
+   - 添加以下变量（根据需要）：
+     - `PASSWORD`，必须: 管理密码
+     - `THEME`，可选: 不设置则启用默认主题，也可设置为 `theme/urlcool`
+     - `TYPE`，可选: 系统类型，默认为 `shorturl`，即短链接，也可设置为其他类型，用法多样，详见[原作者教程](#原作者教程)
+     - `LOAD_KV`，可选: 是否加载kv数据，默认为 `true`
+
+#### 方法二：使用 GitHub Pages
+
+1. **Fork 仓库**
+   - 访问 [GitHub 仓库](https://github.com/yutian81/slink/)
+   - 点击"Fork"按钮
+
+2. **启用 GitHub Pages**
+   - 进入你的 fork 后的仓库设置
+   - 找到"Pages"选项
+   - 选择主分支作为源
+   - 点击"保存"
+
+3. **配置自定义域名（可选）**
+   - 在 Pages 设置中添加你的自定义域名
+   - 按照提示配置 DNS
+
+### 3. 自定义配置
+
+修改 `config` 对象中的参数来调整系统行为：
+
+```javascript
+const config = {
+  password: "your_password", // 管理密码
+  result_page: false, // 是否使用结果页面
+  theme: "", // 主题，留空为默认可选"theme/urlcool"
+  cors: true, // 是否允许CORS
+  unique_link: false, // 是否生成唯一短链
+  custom_link: true, // 允许自定义短链
+  overwrite_kv: false, // 允许覆盖已存在的key
+  snapchat_mode: false, // 阅后即焚模式
+  visit_count: true, // 访问计数
+  load_kv: true, // 从KV加载全部数据
+  system_type: "shorturl" // 系统类型
+}
+```
+
+## 二、使用说明
+
+### 1. 基本使用
+
+#### 创建短链接
+- **方法一**：通过 API
+  ```
+  POST https://your-worker.your-account.workers.dev/
+  Content-Type: application/json
+  
+  {
+    "cmd": "add",
+    "url": "https://example.com/long-url",
+    "password": "your_password",
+    "key": "custom-key" // 可选
+  }
+  ```
+
+- **方法二**：通过 Web 界面
+  访问 `https://your-worker.your-account.workers.dev/your_password` 使用管理界面
+
+#### 访问短链接
+直接访问 `https://your-worker.your-account.workers.dev/short-key`
+
+### 2. API 参考
+
+| 命令 | 方法 | 参数 | 描述 |
+|------|------|------|------|
+| add  | POST | url, password, [key] | 创建短链接 |
+| del  | POST | key, password | 删除短链接 |
+| qry  | POST | key, password | 查询短链接 |
+| qryall | POST | password | 查询所有短链接 |
+
+### 3. 高级功能
+
+#### 1. 自定义主题
+- 可用的内置主题：`theme/urlcool`
+- 自定义主题：修改 `index.html` 和 `result.html`
+
+#### 2. 图片托管
+设置 `system_type: "imghost"` 可将系统转为图片托管服务
+
+#### 3. 访问统计
+启用 `visit_count: true` 后，访问 `short-key-count` 可查看访问次数
+
+#### 4. 阅后即焚模式
+启用 `snapchat_mode: true` 后，链接在被访问一次后自动删除
+
+### 4. 注意事项
+
+1. **密码安全**：确保设置强密码并定期更换
+2. **KV 限制**：Cloudflare KV 有写入次数限制，频繁操作可能导致超额
+3. **自定义域名**：如需使用自定义域名，需在 Cloudflare 中配置 DNS 和 Workers 路由
+4. **备份**：定期导出 KV 数据作为备份
+
+## 三、故障排除
+
+1. **短链接无法创建**
+   - 检查密码是否正确
+   - 检查 KV 命名空间是否已正确绑定
+   - 检查 Worker 是否已部署
+
+2. **短链接无法访问**
+   - 检查短链接是否已创建
+   - 检查是否启用了"阅后即焚"模式
+   - 检查 Worker 是否正常运行
+
+3. **管理界面无法打开**
+   - 确保密码 URL 正确（`https://worker-url/your_password`）
+   - 检查主题配置是否正确
+
+如需更多帮助，请参考 [GitHub 仓库](https://github.com/yutian81/slink/) 或提交 issue。
 
 # API 调用
 详见[API说明文档](https://github.com/yutian81/slink/blob/main/API.md)
