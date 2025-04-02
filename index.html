@@ -219,6 +219,13 @@
     .modal-header {
       border-radius: 0.5rem 0.5rem 0 0 !important;
     }
+
+    .copyright {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
     
     .footer-link {
       color: var(--text-primary);
@@ -304,9 +311,6 @@
      .list-group-item .btn span {
         display: none;
       }
-      .footer-line {
-        white-space: nowrap;
-      }
       .card-footer p {
         font-size: 0.8rem;
       }
@@ -334,12 +338,12 @@
         flex: 1 1 30%;
         min-width: 100px;
       }
+      .separator:first-child {
+        display: none;
+      }
       .footer-link {
         display: block;
         margin: 0.25rem 0;
-      }
-      .footer-line {
-        white-space: nowrap;
       }
       .card-footer p {
         font-size: 0.8rem;
@@ -505,12 +509,16 @@
                 </div>
               </div>
               <div class="card-footer text-center">
-                <p class="mb-0 footer-line">
-                  Copyright © 2025 Yutian81&nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a href="https://github.com/yutian81/slink/" class="footer-link" target="_blank">
-                    <i class="fab fa-github me-1"></i>GitHub</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a href="https://blog.811520.xyz/" class="footer-link" target="_blank"> 
-                    <i class="fas fa-blog me-1"></i>青云志博客</a>
+                <p class="mb-0 copyright">
+                  <span class="item">Copyright © 2025 Yutian81</span>
+                  <span class="separator">|</span>
+                  <a href="https://github.com/yutian81/slink/" class="item footer-link" target="_blank">
+                    <i class="fab fa-github me-1"></i>GitHub
+                  </a>
+                  <span class="separator">|</span>
+                  <a href="https://blog.811520.xyz/" class="item footer-link" target="_blank">  
+                    <i class="fas fa-blog me-1"></i>青云志博客
+                  </a>
                 </p>
               </div>
             </div>
