@@ -1,7 +1,7 @@
 let res
 
 let apiSrv = window.location.pathname
-let password_value = document.querySelector("#passwordText").value
+let password_value = ''; // 由后端验证
 // let apiSrv = "https://journal.crazypeace.workers.dev"
 // let password_value = "journaljournal"
 
@@ -21,7 +21,12 @@ function shorturl() {
   fetch(apiSrv, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cmd: "add", url: document.querySelector("#longURL").value, key: document.querySelector("#keyPhrase").value, password: password_value })
+    body: JSON.stringify({ 
+      cmd: "add", 
+      url: document.querySelector("#longURL").value, 
+      key: document("#keyPhrase").value, 
+      password: document.querySelector("#passwordText").value 
+    })
   }).then(function (response) {
     return response.json();
   }).then(function (myJson) {
@@ -119,25 +124,15 @@ function copyurl(id, attr) {
 
 // 点击复制短链接
 function copyShortUrl(url, event) {
-  // 找到最近的查询按钮
   const qryBtn = event.target.closest('.list-group-item').querySelector('[id^="qryCntBtn-"]');
   const originalHtml = qryBtn.innerHTML;
-  navigator.clipboard.writeText(url).then(() => { 
-    // 修改查询按钮文字
-    qryBtn.innerHTML = '<i class="fas fa-check"></i>已复制';
-    // 2秒后恢复
+  navigator.clipboard.writeText(url).then(() => {
+    qryBtn.innerHTML = '<i class="fas fa-check me-1"></i><span class="d-none d-md-inline">已复制</span>';
     setTimeout(() => {
       qryBtn.innerHTML = originalHtml;
-    }, 2000);    
+    }, 2000);
   }).catch(err => {
-    // 备用复制方法
-    const textarea = document.createElement('textarea');  
-    textarea.value = url;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);  
-    qryBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+    qryBtn.innerHTML = '<i class="fas fa-times me-1"></i><span class="d-none d-md-inline">失败</span>';
     setTimeout(() => {
       qryBtn.innerHTML = originalHtml;
     }, 2000);
@@ -177,34 +172,39 @@ function addUrlToList(shortUrl, longUrl) {
   // 删除按钮
   let delBtn = document.createElement('button')
   delBtn.setAttribute('type', 'button')  
-  delBtn.classList.add("btn", "btn-danger", "rounded-bottom-0")
+  delBtn.classList.add("btn", "btn-danger", "btn-sm", "me-1")
   delBtn.setAttribute('onclick', 'deleteShortUrl(\"' + shortUrl + '\")')
   delBtn.setAttribute('id', 'delBtn-' + shortUrl)
-  delBtn.innerText = "X"
+  delBtn.setAttribute('aria-label', '删除短链接')
+  delBtn.innerHTML = '<i class="fas fa-trash me-1"></i><span class="d-none d-md-inline">删除</span>'
   keyItem.appendChild(delBtn)
 
   // 查询访问次数按钮
   let qryCntBtn = document.createElement('button')
   qryCntBtn.setAttribute('type', 'button')
-  qryCntBtn.classList.add("btn", "btn-info")
+  qryCntBtn.classList.add("btn", "btn-info", "btn-sm", "me-1")
   qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
   qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
-  qryCntBtn.innerText = "?"
+  qryCntBtn.setAttribute('aria-label', '访问统计')
+  qryCntBtn.innerHTML = '<i class="fas fa-chart-line me-1"></i><span class="d-none d-md-inline">统计</span>'
   keyItem.appendChild(qryCntBtn)
 
   // 短链接信息
   let keyTxt = document.createElement('span')
-  keyTxt.classList.add("form-control", "rounded-bottom-0")
-  keyTxt.innerText = window.location.protocol + "//" + window.location.host + "/" + shortUrl
+  keyTxt.classList.add("text-primary", "flex-grow-1", "text-truncate", "pe-2")
+  keyTxt.style.cursor = "pointer"
+  keyTxt.innerHTML = window.location.protocol + "//" + window.location.host + "/" + shortUrl
+  keyTxt.addEventListener('click', function(e) { copyShortUrl(this.textContent, e) })
   keyItem.appendChild(keyTxt)
 
   // 显示二维码按钮
   let qrcodeBtn = document.createElement('button')  
   qrcodeBtn.setAttribute('type', 'button')
-  qrcodeBtn.classList.add("btn", "btn-secondary")
+  qrcodeBtn.classList.add("btn", "btn-secondary", "btn-sm")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerText = "QR"
+  qrcodeBtn.setAttribute('aria-label', '生成二维码')
+  qrcodeBtn.innerHTML = '<i class="fas fa-qrcode me-1"></i><span class="d-none d-md-inline">扫码</span>'
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
@@ -220,11 +220,12 @@ function addUrlToList(shortUrl, longUrl) {
 
 function clearLocalStorage() {
   localStorage.clear();
+  document.querySelector("#longURL").value = "";
+  document.querySelector("#longURL").dispatchEvent(new Event('input'));
   loadUrlList();
 }
 
 function deleteShortUrl(delKeyPhrase) {
-  // 按钮状态
   document.getElementById("delBtn-" + delKeyPhrase).disabled = true;
   document.getElementById("delBtn-" + delKeyPhrase).innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
 
@@ -240,12 +241,9 @@ function deleteShortUrl(delKeyPhrase) {
 
     // 成功删除
     if (res.status == "200") {
-      // 从本地存储中删除
       localStorage.removeItem(delKeyPhrase)
-      // 重新加载列表
       loadUrlList()
-
-      document.getElementById("result").innerHTML = "删除成功"
+      document.getElementById("result").innerHTML = "Delete Successful"
     } else {
       document.getElementById("result").innerHTML = res.error;
     }
@@ -260,20 +258,12 @@ function deleteShortUrl(delKeyPhrase) {
   })
 }
 
+// 查询访问计数
 function queryVisitCount(qryKeyPhrase) {
   const btn = document.getElementById("qryCntBtn-" + qryKeyPhrase);
   const originalHtml = btn.innerHTML;
-  
-  // 更新按钮状态
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> 查询中...';
-
-  // 调试日志
-  console.log("[DEBUG] 查询访问次数:", {
-    key: qryKeyPhrase,
-    api: apiSrv,
-    time: new Date().toISOString()
-  });
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
 
   fetch(apiSrv, {
     method: 'POST',
@@ -284,52 +274,24 @@ function queryVisitCount(qryKeyPhrase) {
       password: password_value
     })
   })
-  .then(response => {
-    if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
-    return response.json();
-  })
+  .then(response => response.json())
   .then(data => {
-    console.log("[DEBUG] 查询结果:", data);
-    
     if (data.status === 200) {
-      // 成功获取计数
-      btn.innerHTML = `访问: ${data.url}次`;
-      btn.classList.add("btn-success");
-      
-      // 3秒后恢复原样式
+      btn.innerHTML = `<i class="fas fa-eye me-1"></i><span class="d-none d-md-inline">${data.url}次</span>`;
       setTimeout(() => {
-        btn.classList.remove("btn-success");
         btn.innerHTML = originalHtml;
+        btn.disabled = false;
       }, 3000);
     } else {
-      throw new Error(data.error || "未知错误");
+      throw new Error(data.error || "查询失败");
     }
   })
   .catch(error => {
-    console.error("[ERROR] 查询失败:", error);
-    
-    // 显示错误状态
-    btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 错误';
-    btn.classList.add("btn-danger");
-    
-    // 在模态框中显示详细错误
-    document.getElementById("result").innerHTML = `
-      <strong>查询失败</strong><br>
-      Key: ${qryKeyPhrase}<br>
-      错误: ${error.message}
-    `;
-    new bootstrap.Modal(document.getElementById('resultModal')).show();
-  })
-  .finally(() => {
-    btn.disabled = false;
-    
-    // 5秒后恢复按钮状态
+    btn.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>';
     setTimeout(() => {
-      if (!btn.classList.contains("btn-success")) {
-        btn.innerHTML = originalHtml;
-        btn.classList.remove("btn-danger");
-      }
-    }, 5000);
+      btn.innerHTML = originalHtml;
+      btn.disabled = false;
+    }, 2000);
   });
 }
 
@@ -372,8 +334,8 @@ function query1KV() {
 }
 
 async function loadKV() {
-  // 清空本地存储
-  clearLocalStorage(); 
+  if (!confirm('从KV加载会覆盖本地存储，是否继续？')) return;
+  clearLocalStorage();
 
   // 显示加载状态
   const loadBtn = document.getElementById("loadKV2localStgBtn");

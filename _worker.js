@@ -30,7 +30,7 @@ const html404 = `<!DOCTYPE html>
   </html>`
 
 let response_header = {
-  "Content-type": "text/html;charset=UTF-8;application/json", 
+  "Content-type": "text/html;charset=UTF-8;application/json",
 }
 
 if (config.cors) {
@@ -83,7 +83,7 @@ async function sha512(url) {
 async function checkURL(URL) {
   let str = URL;
   let Expression = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
-  let objExp = new RegExp(Expression); 
+  let objExp = new RegExp(Expression);
   if (objExp.test(str) == true) {
     if (str[0] == 'h')
       return true;
@@ -245,11 +245,12 @@ async function handleRequest(request) {
       
       // 对计数key特殊处理
       if (req_key.endsWith("-count")) {
+        let count = value || "0";
         return new Response(JSON.stringify({
           status: 200,
           error: "",
           key: req_key,
-          url: value || "0"  // 不存在则返回0
+          url: count
         }), {
           headers: response_header,
         })
@@ -349,7 +350,7 @@ async function handleRequest(request) {
   if (config.visit_count) {
     let count = await LINKS.get(path + "-count");
     if (count === null) {
-      await LINKS.put(path + "-count", "0");
+      await LINKS.put(path + "-count", "1"); // 首次访问设置为1
     } else {
       count = parseInt(count) + 1;
       await LINKS.put(path + "-count", count.toString());
