@@ -96,7 +96,7 @@ async function checkURL(URL) {
 
 async function save_url(URL) {
   const MAX_RETRIES = 5;
-  const INITIAL_KEY_LENGTH = 4;
+  const INITIAL_KEY_LENGTH = 5;
   let attempts = 0;
   
   while (attempts < MAX_RETRIES) {
