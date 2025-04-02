@@ -127,9 +127,13 @@
       border-top: 1px solid var(--card-footer-border);
       padding: 1rem 1.5rem;
     }
-    .card-footer p {
+    .copyright {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       font-size: 0.9rem;
-      white-space: nowrap;
     }
     
     .form-control, .input-group-text {
@@ -220,14 +224,6 @@
       border-radius: 0.5rem 0.5rem 0 0 !important;
     }
 
-    .copyright {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
     .footer-link {
       color: var(--text-primary);
       text-decoration: none !important;
@@ -264,7 +260,7 @@
     /* 响应式设计 */
     @media (max-width: 992px) {
       .cards-container {
-        flex-direction: column;
+        flex-direction: column; 
       }      
       .card-wrapper {
         min-width: 100%;
@@ -471,7 +467,7 @@
                                 onclick="deleteShortUrl('4sure')" 
                                 id="delBtn-4sure"
                                 aria-label="删除">
-                          <i class="fas fa-trash me-1"></i>
+                          <i class="fas fa-trash me-1"></i> 
                           <span class="d-none d-md-inline">删除</span>
                         </button>
                         <!-- 统计按钮 --> 
