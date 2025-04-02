@@ -1,15 +1,35 @@
 # Slink 短链接使用说明
 
-## 一、部署教程
+## 一. 核心功能
+
+### 短链接生成与管理
+- **智能生成短链**：自动生成5-7位字符的短链接key（可自定义长度）
+- **自定义短链**：允许用户指定特定的短链接后缀（需启用`custom_link`）
+- **唯一短链模式**：相同长URL始终生成相同短链（`unique_link`模式）
+- **批量管理**：支持查询、添加、删除所有短链接（需启用`load_kv`)
+
+## 二. 高级功能
+- **阅后即焚**：链接被访问后自动删除（`snapchat_mode`）
+- **访问统计**：记录每个短链接的点击次数（`visit_count`）
+- **扩展功能**
+  - 通过修改`system_type`可扩展为：
+  - 短文本分享系统（pastebin）
+  - 日志记录系统（journal）
+  - 图床系统 (imghost)
+
+## 三. 可配置性
+- **13项可配置参数**：通过`config`对象灵活控制系统行为
+- **多主题支持**：可切换不同前端主题（如 `theme/urlcool` 主题）
+- **环境变量配置**：支持通过环境变量动态配置
+
+## 四. 部署教程
 
 ### 1. 准备工作
 - 一个 Cloudflare 账户
 - 一个域名（可选，但推荐使用）
 - GitHub 账户（用于获取源码）
 
-### 2. 部署步骤
-
-#### 方法一：使用 Cloudflare Workers
+### 方法一：使用 Cloudflare Workers
 
 1. **登录 Cloudflare 仪表板**
    - 进入 Workers 和 Pages 页面
@@ -39,7 +59,7 @@
      - `TYPE`，可选: 系统类型，默认为 `shorturl`，即短链接，也可设置为其他类型，用法多样，详见[原作者教程](#原作者教程)
      - `LOAD_KV`，可选: 是否加载kv数据，默认为 `true`
 
-#### 方法二：使用 GitHub Pages
+### 方法二：使用 GitHub Pages
 
 1. **Fork 仓库**
    - 访问 [GitHub 仓库](https://github.com/yutian81/slink/)
@@ -55,7 +75,7 @@
    - 在 Pages 设置中添加你的自定义域名
    - 按照提示配置 DNS
 
-### 3. 自定义配置
+4. 自定义配置
 
 修改 `config` 对象中的参数来调整系统行为：
 
@@ -75,12 +95,11 @@ const config = {
 }
 ```
 
-## 二、使用说明
+## 五. 使用说明
 
 ### 1. 基本使用
 
-#### 创建短链接
-- **方法一**：通过 API
+- **方法一**：通过 API 创建短链
   ```
   POST https://your-worker.your-account.workers.dev/
   Content-Type: application/json
@@ -93,11 +112,8 @@ const config = {
   }
   ```
 
-- **方法二**：通过 Web 界面
+- **方法二**：通过 Web 界面创建短链
   访问 `https://your-worker.your-account.workers.dev/your_password` 使用管理界面
-
-#### 访问短链接
-直接访问 `https://your-worker.your-account.workers.dev/short-key`
 
 ### 2. API 参考
 
@@ -108,22 +124,7 @@ const config = {
 | qry  | POST | key, password | 查询短链接 |
 | qryall | POST | password | 查询所有短链接 |
 
-### 3. 高级功能
-
-#### 1. 自定义主题
-- 可用的内置主题：`theme/urlcool`
-- 自定义主题：修改 `index.html` 和 `result.html`
-
-#### 2. 图片托管
-设置 `system_type: "imghost"` 可将系统转为图片托管服务
-
-#### 3. 访问统计
-启用 `visit_count: true` 后，访问 `short-key-count` 可查看访问次数
-
-#### 4. 阅后即焚模式
-启用 `snapchat_mode: true` 后，链接在被访问一次后自动删除
-
-### 4. 注意事项
+### 3. 注意事项
 
 1. **密码安全**：确保设置强密码并定期更换
 2. **KV 限制**：Cloudflare KV 有写入次数限制，频繁操作可能导致超额
