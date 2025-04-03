@@ -124,50 +124,66 @@ const shortUrlApp = {
   addUrlToList(shortUrl, longUrl) {
     const urlList = document.querySelector("#urlList");
     const item = document.createElement('div');
-    item.className = "mb-3 list-group-item";
-
-    // 操作按钮
+    item.className = "mb-3 list-group-item d-flex align-items-center p-2"; // 添加flex布局和居中对齐
+  
+    // 操作按钮容器 - 修改为更紧凑的布局
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = "d-flex align-items-center me-2"; // 使用flex布局并添加右边距
+    
+    // 按钮配置 - 添加更小的尺寸类
     const buttons = [
       { 
         icon: 'trash', text: '删除', 
-        className: 'btn-danger', 
+        className: 'btn-danger btn-xs', // 添加btn-xs类
         onClick: () => this.deleteShortUrl(shortUrl) 
       },
       { 
         id: `qryCntBtn-${shortUrl}`, 
         icon: 'chart-line', text: '统计', 
-        className: 'btn-info', 
+        className: 'btn-info btn-xs', // 添加btn-xs类
         onClick: () => this.queryVisitCount(shortUrl) 
       },
       { 
         icon: 'qrcode', text: '扫码', 
-        className: 'btn-secondary', 
+        className: 'btn-secondary btn-xs', // 添加btn-xs类
         onClick: () => this.buildQrcode(shortUrl) 
       }
     ];
-
-    const buttonGroup = document.createElement('div');
-    buttonGroup.className = "input-group";
-    
+  
+    // 创建按钮
     buttons.forEach(btn => {
       const button = document.createElement('button');
       button.innerHTML = `<i class="fas fa-${btn.icon} me-1"></i><span class="d-none d-md-inline">${btn.text}</span>`;
-      button.className = `btn ${btn.className} btn-sm me-1`;
+      button.className = `btn ${btn.className} btn-sm me-1`; // 保持btn-sm但添加紧凑样式
+      button.style.padding = "0.25rem 0.5rem"; // 更紧凑的内边距
+      button.style.minWidth = "60px"; // 固定最小宽度
       button.onclick = btn.onClick;
       if (btn.id) button.id = btn.id;
       buttonGroup.appendChild(button);
     });
-
+  
+    // 短链接容器 - 添加边框和居中对齐
+    const urlContainer = document.createElement('div');
+    urlContainer.className = "flex-grow-1 d-flex border rounded px-2 text-wrap align-items-center";
+    urlContainer.style.minHeight = "36px"; // 与按钮高度匹配
+  
     // 短链接文本
     const urlText = document.createElement('span');
     urlText.textContent = utils.buildFullUrl(shortUrl);
-    urlText.className = "text-primary flex-grow-1 text-truncate pe-2 cursor-pointer";
+    urlText.className = "text-primary text-truncate w-100 text-center"; // 添加text-center
+    urlText.style.cursor = "pointer";
     urlText.onclick = (e) => this.copyFromList(e, shortUrl);
-    buttonGroup.appendChild(urlText);
-
+  
+    urlContainer.appendChild(urlText);
     item.appendChild(buttonGroup);
+    item.appendChild(urlContainer);
     item.appendChild(document.createElement('div')).id = `qrcode-${shortUrl}`;
-    item.appendChild(buildValueTxt(longUrl));
+    
+    // 长URL显示（在下方）
+    const longUrlText = buildValueTxt(longUrl);
+    longUrlText.className = "form-control rounded-top-0 mt-2 small";
+    item.appendChild(longUrlText);
+    
     urlList.appendChild(item);
   },
 
@@ -212,9 +228,11 @@ const shortUrlApp = {
   async queryVisitCount(key) {
     const btn = document.getElementById(`qryCntBtn-${key}`);
     if (!btn) return;
-
-    utils.setButtonLoading(btn, true);
-
+  
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+  
     try {
       const response = await fetch(config.apiSrv, {
         method: 'POST',
@@ -225,21 +243,25 @@ const shortUrlApp = {
           password: config.password_value
         })
       });
-
+  
       const data = await response.json();
       if (data.status === 200) {
-        btn.innerHTML = `<i class="fas fa-eye me-1"></i><span class="d-none d-md-inline">${data.url}次</span>`;
-        setTimeout(() => {
-          btn.innerHTML = btn.dataset.originalText;
-          btn.disabled = false;
-        }, 3000);
+        // 修改这里：直接显示访问次数，不再自动恢复
+        btn.innerHTML = `<i class="fas fa-eye me-1"></i><span>${data.url || '0'}次</span>`;
+        btn.disabled = false;
+        
+        // 添加点击事件，点击后可手动恢复原始状态
+        btn.onclick = () => {
+          btn.innerHTML = originalHtml;
+          btn.onclick = () => this.queryVisitCount(key);
+        };
       } else {
         throw new Error(data.error || "查询失败");
       }
     } catch (error) {
       btn.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>';
       setTimeout(() => {
-        btn.innerHTML = btn.dataset.originalText;
+        btn.innerHTML = originalHtml;
         btn.disabled = false;
       }, 2000);
     }
@@ -254,7 +276,7 @@ const shortUrlApp = {
       container.empty().addClass('qrcode-container');    
       container.qrcode({
         render: 'canvas',
-        size: 128,
+        size: 192,
         minVersion: 5,
         maxVersion: 20,
         ecLevel: 'H',
@@ -262,7 +284,7 @@ const shortUrlApp = {
         background: null,
         text: utils.buildFullUrl(shortUrl),
         radius: 4,
-        quiet: 6
+        quiet: 2
       });
 
       darkModeMediaQuery.addEventListener('change', (e) => {
