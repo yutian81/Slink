@@ -225,7 +225,7 @@ async function handleRequest(request) {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误: key不存在。"}`, {
+        return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误: key不存在或统计功能未开启。"}`, {
           headers: response_header,
         })
       }
