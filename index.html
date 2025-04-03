@@ -363,31 +363,34 @@
                   </div>
                 </div>
                 
-                <div class="mb-3">
+                <div class="mb-3" id="customLinkContainer" style="display: none;">
                   <label for="keyPhrase" class="form-label fw-bold">自定义短链（可选）</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-key"></i></span>
-                    <textarea class="form-control" id="keyPhrase" rows="1" placeholder="输入自定义路径（字母、数字或下划线）"></textarea>
+                    <textarea class="form-control" id="keyPhrase" rows="1" placeholder="输入自定义路径（字母、数字）"></textarea>
                   </div>
                 </div>
                 
                 <div class="mb-3">
                   <label for="passwordText" class="form-label fw-bold">管理密码</label>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                  <input class="form-control" 
-                         type="password" 
-                         value="__PASSWORD__" 
-                         readonly 
-                         id="passwordText"
-                         onfocus="this.type='text'" 
-                         onblur="this.type='password'">
-                  <button class="btn btn-outline-secondary" 
-                          type="button" 
-                          onclick="copyurl('passwordText')">
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input class="form-control" 
+                           type="password" 
+                           value="__PASSWORD__" 
+                           readonly 
+                           id="passwordText">
+                    <button class="btn btn-outline-secondary" 
+                            type="button" 
+                            onclick="togglePassword('passwordText')">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" 
+                            type="button" 
+                            onclick="copyurl('passwordText')">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
                 </div>
                 
                 <div class="d-grid">
@@ -493,6 +496,9 @@
         </div>
         <div class="modal-body">
           <div class="alert alert-info" id="result">暂无结果</div>
+          <div id="resultPageHint" class="small text-muted mt-2" style="display: none;">
+            <i class="fas fa-info-circle"></i> 已启用结果页面，访问将看到跳转页。
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" id="copyResultBtn">
