@@ -145,16 +145,16 @@ function addUrlToList(shortUrl, longUrl) {
   delBtn.classList.add("btn", "btn-danger", "rounded-bottom-0")
   delBtn.setAttribute('onclick', 'deleteShortUrl(\"' + shortUrl + '\")')
   delBtn.setAttribute('id', 'delBtn-' + shortUrl)
-  delBtn.innerText = '<i class="fas fa-trash-alt"></i>' // 使用删除图标
+  delBtn.innerHTML = '<i class="fas fa-trash-alt" title="删除短链接"></i>' // 使用删除图标
   keyItem.appendChild(delBtn)
 
-  // 查询访问次数按钮
+  // 将这个按钮的功能改为复制短链接
   let qryCntBtn = document.createElement('button')
   qryCntBtn.setAttribute('type', 'button')
   qryCntBtn.classList.add("btn", "btn-info")
-  qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
+  qryCntBtn.setAttribute('onclick', `copyToClipboard('${window.location.protocol}//${window.location.host}/${shortUrl}')`)
   qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
-  qryCntBtn.innerText = '<i class="fas fa-copy"></i>' // 使用复制图标
+  qryCntBtn.innerHTML = '<i class="fas fa-copy" title="复制短链接"></i>' // 使用复制图标
   keyItem.appendChild(qryCntBtn)
 
   // 短链接信息
@@ -169,7 +169,7 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerText = '<i class="fas fa-qrcode"></i>' // 使用二维码图标
+  qrcodeBtn.innerHTML = '<i class="fas fa-qrcode" title="显示二维码"></i>' // 使用二维码图标
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
