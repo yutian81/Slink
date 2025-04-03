@@ -143,6 +143,17 @@ async function handleRequest(request) {
       })
     }
 
+    if (req_cmd == "config") {
+      return new Response(JSON.stringify({
+        status: 200,
+        visit_count: config.visit_count,
+        result_page: config.result_page,
+        custom_link: config.custom_link
+      }), {
+        headers: response_header,
+      })
+    }
+
     if (req_cmd == "add") {
       if ((config.system_type == "shorturl") && !await checkURL(req_url)) {
         return new Response(`{"status":500, "url": "` + req_url + `", "error":"错误: 无效的URL"}`, {

@@ -16,12 +16,16 @@ function togglePassword(id) {
 }
 
 // 复制短链接
-function copyToClipboard(text) {
+function copyShortUrl(text, btnId) {
   navigator.clipboard.writeText(text).then(() => {
-    alert('已复制到剪贴板: ' + text);
-  }).catch(err => {
-    console.error('复制失败:', err);
-    alert("复制失败，请手动复制");
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    // 显示成功状态
+    const originalIcon = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check" style="color:white"></i>'; // 复制后显示白色的 √
+    setTimeout(() => {
+      btn.innerHTML = originalIcon;
+    }, 2000);
   });
 }
 
@@ -148,14 +152,28 @@ function addUrlToList(shortUrl, longUrl) {
   delBtn.innerHTML = '<i class="fas fa-trash-alt" title="删除短链接"></i>' // 使用删除图标
   keyItem.appendChild(delBtn)
 
-  // 将这个按钮的功能改为复制短链接
-  let qryCntBtn = document.createElement('button')
-  qryCntBtn.setAttribute('type', 'button')
-  qryCntBtn.classList.add("btn", "btn-info")
-  qryCntBtn.setAttribute('onclick', `copyToClipboard('${window.location.protocol}//${window.location.host}/${shortUrl}')`)
-  qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
-  qryCntBtn.innerHTML = '<i class="fas fa-copy" title="复制短链接"></i>' // 使用复制图标
-  keyItem.appendChild(qryCntBtn)
+  // 只有当 visit_count 为 true 时才显示统计按钮
+  if (window.visit_count_enabled !== false) {
+    let qryCntBtn = document.createElement('button')
+    qryCntBtn.setAttribute('type', 'button')
+    qryCntBtn.classList.add("btn", "btn-info")
+    qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
+    qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
+    qryCntBtn.innerHTML = '<i class="fas fa-chart-line" title="访问统计"></i>'
+    keyItem.appendChild(qryCntBtn)
+  }
+
+  // 复制按钮
+  const copyBtn = document.createElement('button');
+  copyBtn.setAttribute('type', 'button');
+  copyBtn.classList.add('btn', 'btn-success');
+  copyBtn.setAttribute('id', `copyBtn-${shortUrl}`);
+  copyBtn.innerHTML = '<i class="fas fa-copy" title="复制短链接"></i>';
+  copyBtn.onclick = () => copyShortUrl(
+    `${window.location.protocol}//${window.location.host}/${shortUrl}`,
+    `copyBtn-${shortUrl}`
+  );
+  keyItem.appendChild(copyBtn);
 
   // 短链接信息
   let keyTxt = document.createElement('span')
@@ -353,6 +371,32 @@ document.addEventListener('DOMContentLoaded', function() {
     return new bootstrap.Popover(popoverTriggerEl);
   });
 
-  loadUrlList();
+  // 初始化全局变量
+  window.visit_count_enabled = true; // 默认值
+  
+  // 获取后端配置
+  function loadConfig() {
+    fetch(apiSrv, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        cmd: "config", 
+        password: password_value 
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status == 200) {
+        window.visit_count_enabled = data.visit_count;
+        // 可以在这里存储其他配置
+      }
+      loadUrlList();
+    })
+    .catch(err => {
+      console.error("Error loading config:", err);
+      loadUrlList();
+    });
+  }
   document.getElementById("passwordText").readOnly = true;
+  loadConfig();
 });
