@@ -15,12 +15,14 @@ function togglePassword(id) {
   }
 }
 
-// 复制管理密码
-function copyPassword(id) {
-  const element = document.getElementById(id);
-  element.select();
-  document.execCommand('copy');
-  alert("已复制到剪贴板");
+// 复制短链接
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('已复制到剪贴板: ' + text);
+  }).catch(err => {
+    console.error('复制失败:', err);
+    alert("复制失败，请手动复制");
+  });
 }
 
 function shorturl() {
@@ -143,7 +145,7 @@ function addUrlToList(shortUrl, longUrl) {
   delBtn.classList.add("btn", "btn-danger", "rounded-bottom-0")
   delBtn.setAttribute('onclick', 'deleteShortUrl(\"' + shortUrl + '\")')
   delBtn.setAttribute('id', 'delBtn-' + shortUrl)
-  delBtn.innerText = "X"
+  delBtn.innerText = '<i class="fas fa-trash-alt"></i>' // 使用删除图标
   keyItem.appendChild(delBtn)
 
   // 查询访问次数按钮
@@ -152,7 +154,7 @@ function addUrlToList(shortUrl, longUrl) {
   qryCntBtn.classList.add("btn", "btn-info")
   qryCntBtn.setAttribute('onclick', 'queryVisitCount(\"' + shortUrl + '\")')
   qryCntBtn.setAttribute('id', 'qryCntBtn-' + shortUrl)
-  qryCntBtn.innerText = "?"
+  qryCntBtn.innerText = '<i class="fas fa-copy"></i>' // 使用复制图标
   keyItem.appendChild(qryCntBtn)
 
   // 短链接信息
@@ -167,7 +169,7 @@ function addUrlToList(shortUrl, longUrl) {
   qrcodeBtn.classList.add("btn", "btn-info")
   qrcodeBtn.setAttribute('onclick', 'buildQrcode(\"' + shortUrl + '\")')
   qrcodeBtn.setAttribute('id', 'qrcodeBtn-' + shortUrl)
-  qrcodeBtn.innerText = "QR"
+  qrcodeBtn.innerText = '<i class="fas fa-qrcode"></i>' // 使用二维码图标
   keyItem.appendChild(qrcodeBtn)
   child.appendChild(keyItem)
 
