@@ -5,11 +5,12 @@ const config = {
   theme: typeof THEME !== "undefined" ? THEME : "", // 主题路径，可选 theme/urlcool
   cors: true, // 允许跨域
   unique_link: true, // 唯一短链接
-  custom_link: typeof CUSTOM_LINK !== "undefined" ? CUSTOM_LINK === "true" : false, // 默认允许自定义短链接
+  custom_link: typeof CUSTOM_LINK !== "undefined" ? CUSTOM_LINK === "true" : false, // 默认关闭自定义短链接
   overwrite_kv: false, // 是否允许覆盖已存在的短链key
   snapchat_mode: false, // 阅后即焚模式
   visit_count: typeof VISIT_COUNT !== "undefined" ? VISIT_COUNT === "true" : false, // 访问统计，默认关闭
-  load_kv: typeof LOAD_KV !== "undefined" ? LOAD_KV === "true" : false, // 默认允许从KV加载全部数据
+  load_kv: typeof LOAD_KV !== "undefined" ? LOAD_KV === "true" : false, // 默认关闭从KV加载全部数据
+  // load_kv: typeof LOAD_KV !== "undefined" ? LOAD_KV !== "false" : true, // 默认开启写法示例
   system_type: typeof TYPE !== "undefined" ? TYPE : "shorturl", // 默认系统类型为短链系统
 }
 
