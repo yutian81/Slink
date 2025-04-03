@@ -292,42 +292,70 @@ function deleteShortUrl(delKeyPhrase) {
   })
 }
 
-function loadKV() {
-  let loadBtn = document.getElementById("loadKV2localStgBtn")
-  loadBtn.disabled = true
-  loadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> 加载中...'
-
-  fetch(apiSrv, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cmd: "qryall", password: password_value })
-  }).then(function(response) {
-    if (!response.ok) throw new Error("网络响应不正常")
-    return response.json()
-  }).then(function(myJson) {
-    res = myJson
-    loadBtn.disabled = false
-    loadBtn.innerHTML = '<i class="fas fa-cloud-download-alt me-2"></i>从KV加载'
-
-    if (res.status == "200") {
-      localStorage.clear()
-      res.kvlist.forEach(item => {
-        localStorage.setItem(item.key, item.value)
+async function loadKV() {
+  const loadBtn = document.getElementById("loadKV2localStgBtn");
+  const resultModal = document.getElementById("resultModal");
+  const resultText = document.getElementById("result");
+  
+  try {
+    // 显示加载状态
+    loadBtn.disabled = true;
+    loadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> 加载中...';
+    
+    // 发送请求
+    const response = await fetch(apiSrv, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        cmd: "qryall", 
+        password: password_value 
       })
-      loadUrlList()
-      document.getElementById("result").innerHTML = "已从KV加载 " + res.kvlist.length + " 条短链接"
-    } else {
-      document.getElementById("result").innerHTML = res.error
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP错误! 状态码: ${response.status}`);
     }
-
-    var modal = new bootstrap.Modal(document.getElementById('resultModal'))
-    modal.show()
-  }).catch(function(err) {
-    console.error("加载错误:", err)
-    loadBtn.disabled = false
-    loadBtn.innerHTML = '<i class="fas fa-cloud-download-alt me-2"></i>从KV加载'
-    alert("加载失败，请重试！")
-  })
+    
+    const data = await response.json();
+    
+    // 恢复按钮状态
+    loadBtn.disabled = false;
+    loadBtn.innerHTML = '<i class="fas fa-cloud-download-alt me-2"></i>从KV加载';
+    
+    // 处理响应
+    if (data.status === "200") {
+      // 清空本地存储
+      localStorage.clear();
+      
+      // 存入本地存储
+      data.kvlist.forEach(item => {
+        if (item.key && item.value) {
+          localStorage.setItem(item.key, item.value);
+        }
+      });
+      
+      // 刷新列表
+      loadUrlList();
+      
+      // 显示成功消息
+      resultText.innerHTML = `成功加载 ${data.kvlist.length} 条短链接`;
+      resultText.className = "alert alert-success";
+      new bootstrap.Modal(resultModal).show();
+    } else {
+      throw new Error(data.error || "未知错误");
+    }
+  } catch (error) {
+    console.error("加载KV失败:", error);
+    
+    // 恢复按钮状态
+    loadBtn.disabled = false;
+    loadBtn.innerHTML = '<i class="fas fa-cloud-download-alt me-2"></i>从KV加载';
+    
+    // 显示错误消息
+    resultText.innerHTML = `加载失败: ${error.message}`;
+    resultText.className = "alert alert-danger";
+    new bootstrap.Modal(resultModal).show();
+  }
 }
 
 function buildQrcode(shortUrl) {
