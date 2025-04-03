@@ -63,7 +63,8 @@
       margin-bottom: 1.5rem;
       display: flex;
       flex-direction: column;
-      width: 768px;
+      width: 100%; /* 卡片宽度跟随父容器 */
+      max-width: 100%; /* 防止溢出 */
     }
 
     .card:hover {
@@ -170,6 +171,7 @@
       border-radius: 0.35rem !important;
       border: 1px solid rgba(0, 0, 0, 0.08);
       transition: all 0.2s;
+      overflow-wrap: break-word;
       background-color: var(--input-bg);
       font-family: "Source Code Pro", Menlo, Monaco, Consolas, "Courier New", monospace;
     }
@@ -237,6 +239,7 @@
       gap: 1.5rem;
       flex-wrap: nowrap;
       align-items: flex-start;
+      width: 100%;
     }
 
     .card-wrapper {
@@ -245,9 +248,10 @@
     }
 
     .card-wrapper:first-child {
-      flex: 0 0 600px;
-      width: 600px;
-      min-width: 600px;
+      flex: 0 0 480px; /* 固定左侧卡片宽度为400px */
+      width: 480px;
+      min-width: 480px;
+      max-width: 480px; /* 防止意外拉伸 */
     }
 
     .img-thumbnail {
@@ -258,8 +262,12 @@
       .cards-container {
         flex-direction: column;
       }      
-      .card-wrapper {
+      .card-wrapper,
+      .card-wrapper:first-child {
+        flex: 1 1 100%;
+        width: 100%;
         min-width: 100%;
+        max-width: 100%;
       }
     }
 
