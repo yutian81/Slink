@@ -108,6 +108,7 @@
 | del  | POST | key, password | 删除短链接 |
 | qry  | POST | key, password | 查询短链接 |
 | qryall | POST | password | 查询所有短链接 |
+| config | POST | password | 获取设置详情 |
 
 详见 [API说明文档](https://github.com/yutian81/slink/blob/main/API.md)
 
