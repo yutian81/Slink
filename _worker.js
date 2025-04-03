@@ -4,7 +4,7 @@ const config = {
   result_page: false, // 是否使用结果页面
   theme: typeof THEME !== "undefined" ? THEME : "", // 主题路径，可选 theme/urlcool
   cors: true, // 允许跨域
-  unique_link: false, // 唯一短链接
+  unique_link: true, // 唯一短链接
   custom_link: typeof CUSTOM_LINK !== "undefined" ? CUSTOM_LINK === "true" : false, // 默认允许自定义短链接
   overwrite_kv: false, // 是否允许覆盖已存在的短链key
   snapchat_mode: false, // 阅后即焚模式
