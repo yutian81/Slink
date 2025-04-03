@@ -13,7 +13,11 @@ const config = {
   system_type: typeof TYPE !== "undefined" ? TYPE : "shorturl", // 默认系统类型为短链系统
 }
 
-// key in protect_keylist can't read, add, del from UI and API
+addEventListener("fetch", event => {
+  event.respondWith(handleRequest(event.request))
+})
+
+// 受保护的KEY列表
 const protect_keylist = [
   "password",
 ]
@@ -28,7 +32,7 @@ const html404 = `<!DOCTYPE html>
     <h1>404 未找到</h1>
     <p>您访问的页面不存在</p>
     <p>需要在域名后加入 "/你设置的密码" 访问管理页面</p>
-    <p>项目开源地址：<a href="https://github.com/yutian81/slink" target="_blank">点此访问 GitHub 项目</a></p>
+    <p>项目开源地址：<a href="https://github.com/yutian81/slink" target="_blank">访问 GitHub 项目</a></p>
   </body>
 </html>`
 
@@ -58,11 +62,11 @@ function base64ToBlob(base64String) {
 }
 
 async function randomString(len) {
-  len = len || 6;
-  let chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    // 去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1
+  len = len || 5;
+  let chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'; // 去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1
   let maxPos = chars.length;
   let result = '';
-  for (i = 0; i < len; i++) {
+  for (let i = 0; i < len; i++) {
     result += chars.charAt(Math.floor(Math.random() * maxPos));
   }
   return result;
@@ -71,12 +75,11 @@ async function randomString(len) {
 async function sha512(url) {
   url = new TextEncoder().encode(url)
   const url_digest = await crypto.subtle.digest(
-    { name: "SHA-512", },
-    url, // 要作为ArrayBuffer进行哈希处理的数据
+    { name: "SHA-512" },
+    url // 要作为ArrayBuffer进行哈希处理的数据
   )
-  const hashArray = Array.from(new Uint8Array(url_digest)); // convert buffer to byte array
+  const hashArray = Array.from(new Uint8Array(url_digest));
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  //console.log(hashHex)
   return hashHex
 }
 
@@ -97,17 +100,16 @@ async function checkURL(URL) {
 async function save_url(URL) {
   let random_key = await randomString()
   let is_exist = await LINKS.get(random_key)
-  // console.log(is_exist)
   if (is_exist == null) {
-    return await LINKS.put(random_key, URL), random_key
+    await LINKS.put(random_key, URL)
+    return random_key
   } else {
-    save_url(URL)
+    return save_url(URL)
   }
 }
 
 async function is_url_exist(url_sha512) {
   let is_exist = await LINKS.get(url_sha512)
-  // console.log(is_exist)
   if (is_exist == null) {
     return false
   } else {
@@ -117,18 +119,17 @@ async function is_url_exist(url_sha512) {
 
 // 系统密码
 async function system_password() {
-  if (config.password.trim().length === 0 ) {    
+  if (config.password.trim().length === 0) {    
     return await LINKS.get("password");
-  }
-  else {
+  } else {
     return config.password.trim();
   }
 }
 
 async function handleRequest(request) {
-  const password_value  = await system_password();
+  const password_value = await system_password();
   
-  // 以下是API接口的处理 Below is operation for API
+  // 以下是API接口的处理
   if (request.method === "POST") {
     let req = await request.json()
     let req_cmd = req["cmd"]
@@ -137,35 +138,34 @@ async function handleRequest(request) {
     let req_password = req["password"]
     
     if (req_password != password_value) {
-      return new Response(`{"status":500,"key": "", "error":"Error: Invalid password."}`, {
+      return new Response(`{"status":500,"key": "", "error":"错误: 无效的密码"}`, {
         headers: response_header,
       })
     }
 
     if (req_cmd == "add") {
       if ((config.system_type == "shorturl") && !await checkURL(req_url)) {
-        return new Response(`{"status":500, "url": "` + req_url + `", "error":"Error: Url illegal."}`, {
+        return new Response(`{"status":500, "url": "` + req_url + `", "error":"错误: 无效的URL"}`, {
           headers: response_header,
         })
       }
 
       let stat, random_key
       if (config.custom_link && (req_key != "")) {
-        // Refuse 'password" as Custom shortURL
         if (protect_keylist.includes(req_key)) {
-          return new Response(`{"status":500,"key": "` + req_key + `", "error":"Error: Key in protect_keylist."}`, {
+          return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误: key在保护列表中"}`, {
             headers: response_header,
           })
         }
 
         let is_exist = await is_url_exist(req_key)
         if ((!config.overwrite_kv) && (is_exist)) {
-          return new Response(`{"status":500,"key": "` + req_key + `", "error":"Error: Specific key existed."}`, {
+          return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误: 已存在的key"}`, {
             headers: response_header,
           })
         } else {
           random_key = req_key
-          stat, await LINKS.put(req_key, req_url)
+          await LINKS.put(req_key, req_url)
         }
       } else if (config.unique_link) {
         let url_sha512 = await sha512(req_url)
@@ -173,29 +173,28 @@ async function handleRequest(request) {
         if (url_key) {
           random_key = url_key
         } else {
-          stat, random_key = await save_url(req_url)
-          if (typeof (stat) == "undefined") {
+          random_key = await save_url(req_url)
+          if (random_key) {
             await LINKS.put(url_sha512, random_key)
-            // console.log()
           }
         }
       } else {
-        stat, random_key = await save_url(req_url)
+        random_key = await save_url(req_url)
       }
-      // console.log(stat)
-      if (typeof (stat) == "undefined") {
+      
+      if (random_key) {
         return new Response(`{"status":200, "key":"` + random_key + `", "error": ""}`, {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "key": "", "error":"Error: Reach the KV write limitation."}`, {
+        return new Response(`{"status":500, "key": "", "error":"错误: 达到KV写入限制。"}`, {
           headers: response_header,
         })
       }
     } else if (req_cmd == "del") {
       // Refuse to delete 'password' entry
       if (protect_keylist.includes(req_key)) {
-        return new Response(`{"status":500, "key": "` + req_key + `", "error":"Error: Key in protect_keylist."}`, {
+        return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误: key在保护列表中""}`, {
           headers: response_header,
         })
       }
@@ -211,9 +210,8 @@ async function handleRequest(request) {
         headers: response_header,
       })
     } else if (req_cmd == "qry") {
-      // Refuse to query 'password'
       if (protect_keylist.includes(req_key)) {
-        return new Response(`{"status":500,"key": "` + req_key + `", "error":"Error: Key in protect_keylist."}`, {
+        return new Response(`{"status":500,"key": "` + req_key + `", "error":"错误: key在保护列表中"}`, {
           headers: response_header,
         })
       }
@@ -227,13 +225,13 @@ async function handleRequest(request) {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "key": "` + req_key + `", "error":"Error: Key not exist."}`, {
+        return new Response(`{"status":500, "key": "` + req_key + `", "error":"错误: key不存在。"}`, {
           headers: response_header,
         })
       }
     } else if (req_cmd == "qryall") {
-      if ( !config.load_kv) {
-        return new Response(`{"status":500, "error":"Error: Config.load_kv false."}`, {
+      if (!config.load_kv) {
+        return new Response(`{"status":500, "error":"错误: 载入kv功能未启用"}`, {
           headers: response_header,
         })
       }
@@ -243,13 +241,11 @@ async function handleRequest(request) {
         // 初始化返回数据结构
         let jsonObjectRetrun = JSON.parse(`{"status":200, "error":"", "kvlist": []}`);
                 
-        for (var i = 0; i < keyList.keys.length; i++) {
+        for (let i = 0; i < keyList.keys.length; i++) {
           let item = keyList.keys[i];
-          // Hide 'password' from the query all result
           if (protect_keylist.includes(item.name)) {
             continue;
           }
-          // Hide '-count' from the query all result
           if (item.name.endsWith("-count")) {
             continue;
           }
@@ -260,17 +256,15 @@ async function handleRequest(request) {
           jsonObjectRetrun.kvlist.push(newElement);
         }
 
-        return new Response(JSON.stringify(jsonObjectRetrun) , {
+        return new Response(JSON.stringify(jsonObjectRetrun), {
           headers: response_header,
         })
       } else {
-        return new Response(`{"status":500, "error":"Error: Load keyList failed."}`, {
+        return new Response(`{"status":500, "error":"错误: 加载key列表失败。"}`, {
           headers: response_header,
         })
       }
-
     }
-
   } else if (request.method === "OPTIONS") {
     return new Response(``, {
       headers: response_header,
@@ -288,6 +282,7 @@ async function handleRequest(request) {
     return new Response(html404, {
       headers: response_header,
       status: 404
+    }) 
   }
 
   // 如果path符合password 返回管理页面
@@ -295,8 +290,6 @@ async function handleRequest(request) {
     let index = await fetch(index_html)
     index = await index.text()
     index = index.replace(/__PASSWORD__/gm, password_value)
-    // 操作页面文字修改
-    // index = index.replace(/短链系统变身/gm, "")
     return new Response(index, {
       headers: response_header,
     })
@@ -383,7 +376,3 @@ async function handleRequest(request) {
     });
   }
 }
-
-addEventListener("fetch", async event => {
-  event.respondWith(handleRequest(event.request))
-})

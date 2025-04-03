@@ -5,47 +5,75 @@ let password_value = document.querySelector("#passwordText").value
 // let password_value = "journaljournal"
 let buildValueItemFunc = buildValueTxt // 这是默认行为, 在不同的index.html中可以设置为不同的行为
 
+// 显示管理密码
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+}
+
+// 复制管理密码
+function copyPassword(id) {
+  const element = document.getElementById(id);
+  element.select();
+  document.execCommand('copy');
+  alert("已复制到剪贴板");
+}
+
 function shorturl() {
   if (document.querySelector("#longURL").value == "") {
-    alert("URL不能为空!")
-    return
+    alert("URL不能为空!");
+    return;
   }
   
-  // 短链中不能有空格
   document.getElementById('keyPhrase').value = document.getElementById('keyPhrase').value.replace(/\s/g, "-");
   document.getElementById("addBtn").disabled = true;
-  document.getElementById("addBtn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Please wait...';
+  document.getElementById("addBtn").innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 处理中...';
+
   fetch(apiSrv, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cmd: "add", url: document.querySelector("#longURL").value, key: document.querySelector("#keyPhrase").value, password: password_value })
-  }).then(function (response) {
-    return response.json();
-  }).then(function (myJson) {
-    res = myJson;
-    document.getElementById("addBtn").disabled = false;
-    document.getElementById("addBtn").innerHTML = 'Shorten it';
-
-    // 成功生成短链 Succeed
-    if (res.status == "200") {
-      let keyPhrase = res.key;
-      let valueLongURL = document.querySelector("#longURL").value;
-      localStorage.setItem(keyPhrase, valueLongURL); // 保存到本地浏览器
-      addUrlToList(keyPhrase, valueLongURL) // 添加链接清单到页面上
-      document.getElementById("result").innerHTML = window.location.protocol + "//" + window.location.host + "/" + res.key;
-    } else {
-      document.getElementById("result").innerHTML = res.error;
-    }
-    // 弹出消息窗口
-    var modal = new bootstrap.Modal(document.getElementById('resultModal'));
-    modal.show();
-
-  }).catch(function (err) {
-    alert("Unknow error. Please retry!");
-    console.log(err);
-    document.getElementById("addBtn").disabled = false;
-    document.getElementById("addBtn").innerHTML = 'Shorten it';
+    body: JSON.stringify({
+      cmd: "add", 
+      url: document.querySelector("#longURL").value, 
+      key: document.querySelector("#keyPhrase").value, 
+      password: password_value
+    })
   })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById("addBtn").disabled = false;
+    document.getElementById("addBtn").innerHTML = '<i class="fas fa-magic me-2"></i>生成短链';
+
+    if (data.status == 200) {
+      const shortUrl = window.location.protocol + "//" + window.location.host + "/" + data.key;
+      document.getElementById("result").innerHTML = shortUrl;
+      
+      // 复制结果按钮添加事件
+      document.getElementById("copyResultBtn").onclick = () => {
+        copyToClipboardFromElement(shortUrl);
+      };
+      
+      // 显示模态框
+      const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+      modal.show();
+      
+      // 添加到本地存储和列表
+      localStorage.setItem(data.key, document.querySelector("#longURL").value);
+      addUrlToList(data.key, document.querySelector("#longURL").value);
+    } else {
+      alert(data.error || "生成短链失败");
+    }
+  })
+  .catch(err => {
+    console.error("Error:", err);
+    document.getElementById("addBtn").disabled = false;
+    document.getElementById("addBtn").innerHTML = '<i class="fas fa-magic me-2"></i>生成短链';
+    alert("请求失败，请重试");
+  });
 }
 
 function copyurl(id, attr) {
@@ -174,7 +202,7 @@ function deleteShortUrl(delKeyPhrase) {
     if (res.status == "200") {
       localStorage.removeItem(delKeyPhrase)
       loadUrlList()
-      document.getElementById("result").innerHTML = "Delete Successful"
+      document.getElementById("result").innerHTML = "已删除"
     } else {
       document.getElementById("result").innerHTML = res.error;
     }
@@ -248,41 +276,38 @@ function query1KV() {
     }
 
   }).catch(function (err) {
-    alert("Unknow error. Please retry!");
+    alert("未知错误。请重试!");
     console.log(err);
   })
 }
 
 function loadKV() {
-  clearLocalStorage(); 
-
-  // 从KV中查询, cmd为 "qryall", 查询全部
+  clearLocalStorage();
+  
   fetch(apiSrv, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cmd: "qryall", password: password_value })
-  }).then(function (response) {    
-    return response.json();
-  }).then(function (myJson) {
-    res = myJson;
-
-    if (res.status == "200") {
-      res.kvlist.forEach(item => {      
-        keyPhrase = item.key;
-        valueLongURL = item.value;
-        localStorage.setItem(keyPhrase, valueLongURL);  
-      });
-
-    } else {
-      document.getElementById("result").innerHTML = res.error;
-      // 弹出消息窗口
-      var modal = new bootstrap.Modal(document.getElementById('resultModal'));
-      modal.show();
-    }
-  }).catch(function (err) {
-    alert("Unknow error. Please retry!");
-    console.log(err);
   })
+  .then(response => {
+    if (!response.ok) throw new Error('加载失败');
+    return response.json();
+  })
+  .then(data => {
+    if (data.status == 200) {
+      data.kvlist.forEach(item => {
+        localStorage.setItem(item.key, item.value);
+      });
+      loadUrlList(); // 加载完成后刷新列表
+      alert(`成功加载 ${data.kvlist.length} 条记录`);
+    } else {
+      alert(data.error || "加载失败");
+    }
+  })
+  .catch(err => {
+    console.error("Error:", err);
+    alert("请求失败，请重试");
+  });
 }
 
 // 生成二维码
@@ -300,7 +325,7 @@ function buildQrcode(shortUrl) {
     background: null,
     text: window.location.protocol + "//" + window.location.host + "/" + shortUrl,
     radius: 4,
-    quiet: 4,
+    quiet: 2,
     mode: 0,
     mSize: 0.1,
     mPosX: 0.5,
@@ -321,10 +346,11 @@ function buildValueTxt(longUrl) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-    return new bootstrap.Popover(popoverTriggerEl)
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+  var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl);
   });
 
   loadUrlList();
+  document.getElementById("passwordText").readOnly = true;
 });
