@@ -368,7 +368,7 @@
                   <label for="longURL" class="form-label fw-bold">长网址</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-link"></i></span>
-                    <textarea class="form-control" id="longURL" rows="1" placeholder="请输入长网址，例如：https://example.com/" oninput="loadUrlList()"></textarea>
+                    <textarea class="form-control" id="longURL" rows="1" placeholder="请输入长网址, 例如: https://example.com/" oninput="loadUrlList()"></textarea>
                   </div>
                 </div>
                 
@@ -403,7 +403,7 @@
                 </div>
                 
                 <div class="d-grid">
-                  <button class="btn btn-primary btn-lg" type="button" id="addBtn">
+                  <button class="btn btn-primary btn-lg" type="button" id="addBtn" onclick="shorturl()">
                     <i class="fas fa-magic me-2"></i>生成短链
                   </button>
                 </div>
@@ -419,13 +419,13 @@
               </div>
               <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between mb-4">
-                  <button class="btn btn-success" type="button" id="loadListBtn">
+                  <button class="btn btn-success" type="button" id="loadListBtn" onclick="loadUrlList()">
                     <i class="fas fa-sync-alt me-2"></i>刷新列表
                   </button>
-                  <button class="btn btn-danger" type="button" id="clearlocalStgBtn">
+                  <button class="btn btn-danger" type="button" id="clearlocalStgBtn" onclick="clearLocalStorage()">
                     <i class="fas fa-trash-alt me-2"></i>清空本地
                   </button>
-                  <button class="btn btn-info" type="button" id="loadKV2localStgBtn">
+                  <button class="btn btn-info" type="button" id="loadKV2localStgBtn" onclick="loadKV()">
                     <i class="fas fa-cloud-download-alt me-2"></i>从KV加载
                   </button>
                 </div>
