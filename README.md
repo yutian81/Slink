@@ -14,7 +14,7 @@
 - **扩展功能**
   - 通过修改`system_type`可扩展为：
   - 短文本分享系统（pastebin）
-  - 日志记录系统（journal）
+  - 笔记系统（journal）
   - 图床系统 (imghost)
 
 ## 三. 可配置性
