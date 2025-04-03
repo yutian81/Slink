@@ -83,7 +83,7 @@
 const config = {
   password: "your_password", // 管理密码
   result_page: false, // 是否使用结果页面
-  theme: "", // 主题，留空为默认可选"theme/urlcool"
+  theme: "", // 主题，留空为默认，可选"theme/urlcool"
   cors: true, // 是否允许CORS
   unique_link: false, // 是否生成唯一短链
   custom_link: true, // 允许自定义短链
