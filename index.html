@@ -118,7 +118,8 @@
     }
 
     .btn {
-      padding: 0.75rem 1.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem !important;
       font-weight: 600;
       transition: all 0.2s;
     }
@@ -419,13 +420,13 @@
               </div>
               <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between mb-4">
-                  <button class="btn btn-success" type="button" id="loadListBtn" onclick="loadUrlList()">
+                  <button class="btn btn-success btn-sm" type="button" id="loadListBtn" onclick="loadUrlList()">
                     <i class="fas fa-sync-alt me-2"></i>刷新列表
                   </button>
-                  <button class="btn btn-danger" type="button" id="clearlocalStgBtn" onclick="clearLocalStorage()">
+                  <button class="btn btn-danger btn-sm" type="button" id="clearlocalStgBtn" onclick="clearLocalStorage()">
                     <i class="fas fa-trash-alt me-2"></i>清空本地
                   </button>
-                  <button class="btn btn-info" type="button" id="loadKV2localStgBtn" onclick="loadKV()">
+                  <button class="btn btn-info btn-sm" type="button" id="loadKV2localStgBtn" onclick="loadKV()">
                     <i class="fas fa-cloud-download-alt me-2"></i>从KV加载
                   </button>
                 </div>
