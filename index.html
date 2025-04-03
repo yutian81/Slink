@@ -9,38 +9,22 @@
   <title>短链接生成器 | Cloudflare Worker</title>
   <style>
     :root {
-      /* 基础颜色变量 */
-      --primary-color: #4e73df; 
+      --primary-color: #4e73df;
       --secondary-color: #f8f9fc;
-      --accent-color: #2e59d9; 
-      /* 文字颜色 */
+      --accent-color: #2e59d9;
       --text-primary: #2a2b2c;
       --text-secondary: #6c757d;
-      /* 背景渐变 */
       --bg-gradient-start: #f8f9fc;
       --bg-gradient-end: #e9ecef;
-      /* 组件颜色 */
       --card-bg: white;
       --input-bg: white;
       --border-color: #ced4da;
-      /* 辅助元素 */
       --scrollbar-track: #f1f1f1;
       --card-footer-bg: rgba(0, 0, 0, 0.03);
       --card-footer-border: rgba(0, 0, 0, 0.05);
       --qrcode-bg: white;
-      --qrcode-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      /* 阴影效果 */
-      --card-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.15);
-      --card-hover-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.2);
     }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      cursor: default;
-    }
-    
+
     body {
       font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
       background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
@@ -48,64 +32,29 @@
       padding: 2rem 0;
       color: var(--text-primary);
     }
-   
-    img {
-      width: auto;
-      max-width: 100%;
-      height: auto;
-    }
-    
+
     .container {
       max-width: 1400px;
       margin: 0 auto;
       padding: 0 15px;
     }
-    
+
     .card {
       background-color: var(--card-bg);
       border: none;
       border-radius: 0.5rem;
-      box-shadow: var(--card-shadow);
+      box-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.15);
       transition: all 0.3s ease;
       margin-bottom: 1.5rem;
       display: flex;
       flex-direction: column;
     }
 
-    .cards-container {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: nowrap;
-      align-items: flex-start;
-    }
-    
-    .card-wrapper {
-      flex: 1;
-      min-width: 400px;
-    }
-
-    /* 左右卡片自动高度 */
-    .card-wrapper .card {
-      height: auto;
-      min-height: 460px;
-      overflow: visible;
-    }
-    /* 左侧卡片宽度 */
-    .card-wrapper:first-child {
-      flex: 0 0 600px;
-      min-width: 600px;
-    }
-    /* 右侧卡片 - 自动填充剩余空间 */
-    .card-wrapper:last-child {
-      flex: 1;
-      min-width: 0;
-    }
-
     .card:hover {
-      box-shadow: var(--card-hover-shadow);
+      box-shadow: 0 0.5rem 2rem rgba(58, 59, 69, 0.2);
       transform: translateY(-2px);
     }
-    
+
     .card-header {
       background-color: var(--primary-color);
       color: white;
@@ -114,19 +63,20 @@
       padding: 1rem 1.5rem;
       border-bottom: none;
     }
-    
+
     .card-body {
       padding: 1.5rem;
       flex: 1;
       min-height: 0;
       overflow: hidden;
     }
-    
+
     .card-footer {
       background-color: var(--card-footer-bg);
       border-top: 1px solid var(--card-footer-border);
       padding: 1rem 1.5rem;
     }
+
     .copyright {
       display: flex;
       flex-wrap: wrap;
@@ -135,7 +85,7 @@
       gap: 8px;
       font-size: 0.9rem;
     }
-    
+
     .form-control, .input-group-text {
       padding: 0.75rem 1rem;
       font-size: 1rem;
@@ -143,83 +93,90 @@
       background-color: var(--input-bg);
       border-color: var(--border-color);
     }
-    
+
     .form-control:focus {
       box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
       border-color: var(--primary-color);
     }
-    
+
     .btn {
       padding: 0.75rem 1.5rem;
       font-weight: 600;
       transition: all 0.2s;
     }
-    
+
     .btn-primary {
       background-color: var(--primary-color);
       border-color: var(--primary-color);
     }
-    
+
     .btn-primary:hover, .btn-primary:focus {
       background-color: var(--accent-color);
       border-color: var(--accent-color);
     }
-    
+
     .input-group-text {
       background-color: var(--secondary-color);
       font-weight: 500;
       color: var(--text-secondary);
     }
-    
+
     #urlList {
       max-height: 400px;
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--primary-color) var(--scrollbar-track);
     }
-    
+
     #urlList::-webkit-scrollbar {
       width: 8px;
     }
-    
+
     #urlList::-webkit-scrollbar-track {
       background: var(--scrollbar-track);
     }
-    
+
     #urlList::-webkit-scrollbar-thumb {
       background-color: var(--primary-color);
       border-radius: 4px;
     }
-    
+
+    .btn-xs {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      line-height: 1.2;
+    }
+
     .list-group-item {
       padding: 1rem;
       margin-bottom: 0.75rem;
       border-radius: 0.35rem !important;
       border: 1px solid rgba(0, 0, 0, 0.08);
       transition: all 0.2s;
-      font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       background-color: var(--input-bg);
     }
-    
+
     .list-group-item:hover {
       background-color: rgba(78, 115, 223, 0.05);
       border-color: rgba(78, 115, 223, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* 点击复制短链 */
     .list-group-item .text-primary {
       cursor: pointer;
       transition: color 0.2s;
     }
+
     .list-group-item .text-primary:hover {
       color: var(--accent-color);
     }
-    
+
     .modal-content {
       border: none;
       border-radius: 0.5rem;
     }
-    
+
     .modal-header {
       border-radius: 0.5rem 0.5rem 0 0 !important;
     }
@@ -229,17 +186,16 @@
       text-decoration: none !important;
       transition: all 0.2s;
     }
-    
+
     .footer-link:hover {
       color: var(--accent-color);
       text-decoration: underline;
     }
-    
+
     .text-muted {
       color: var(--text-secondary) !important;
     }
-        
-    /* 二维码样式调整 */
+
     .qrcode-container {
       margin-top: 8px;
       padding: 6px;
@@ -251,41 +207,40 @@
       margin-left: auto;
       margin-right: auto;
     }
+
     .qrcode-container canvas {
       width: 100% !important;
       height: auto !important;
       max-width: 128px;
     }
-    
-    /* 响应式设计 */
+
+    .cards-container {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: nowrap;
+      align-items: flex-start;
+    }
+
+    .card-wrapper {
+      flex: 1;
+      min-width: 400px;
+    }
+
+    .card-wrapper:first-child {
+      flex: 0 0 600px;
+      min-width: 600px;
+    }
+
     @media (max-width: 992px) {
       .cards-container {
-        flex-direction: column; 
+        flex-direction: column;
       }      
       .card-wrapper {
         min-width: 100%;
       }
-      .card-wrapper:first-child,
-      .card-wrapper:last-child {
-        flex: 0 0 100%;
-        width: 100%;
-      }        
-      .card-wrapper:first-child .card,
-      .card-wrapper:last-child .card {
-        height: auto !important;
-        min-height: auto !important;
-      }
     }
-    
-    /* 适配手机 */
+
     @media (max-width: 768px) {
-      .card-wrapper {
-        min-width: 100% !important;
-        width: 100% !important;
-      }
-      .card-wrapper:first-child {
-        min-width: 100% !important;
-      }
       .card-body, .card-footer {
         padding: 1rem;
       }
@@ -305,16 +260,8 @@
       .list-group-item .btn i {
         margin-right: 0 !important;
       }
-     .list-group-item .btn span {
+      .list-group-item .btn span {
         display: none;
-      }
-      .copyright {
-        font-size: 0.8rem;
-      }
-      }
-     .qrcode-container {
-        margin: 8px 0;
-        padding: 6px;
       }
     }
 
@@ -325,9 +272,6 @@
       .form-control, .input-group-text {
         padding: 0.6rem 0.8rem;
       }
-      textarea.form-control {
-        min-height: 44px;
-      } 
       .d-flex.justify-content-between.mb-4 {
         flex-wrap: wrap;
         gap: 0.5rem;
@@ -336,20 +280,8 @@
         flex: 1 1 30%;
         min-width: 100px;
       }
-      .footer-link {
-        display: block;
-        margin: 0.25rem 0;
-      }
-      .copyright {
-        font-size: 0.8rem;
-      }
-      }
-      .modal-content {
-        margin: 0.5rem;
-      }
     }
-    
-    /* 深色模式 */
+
     @media (prefers-color-scheme: dark) {
       :root {
         --primary-color: #4e73df;
@@ -364,11 +296,7 @@
         --border-color: #4a5568;
         --scrollbar-track: #2d3748;
         --card-footer-bg: rgba(0, 0, 0, 0.1);
-        --card-footer-border: rgba(255, 255, 255, 0.05);
         --qrcode-bg: rgba(45, 55, 72, 0.8);
-        --qrcode-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        --card-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.3);
-        --card-hover-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
       }
       .list-group-item:hover {
         background-color: rgba(78, 115, 223, 0.1);
@@ -431,7 +359,7 @@
                 </div>
                 
                 <div class="d-grid">
-                  <button class="btn btn-primary btn-lg" type="button" onclick="shorturl()" id="addBtn">
+                  <button class="btn btn-primary btn-lg" type="button" id="addBtn">
                     <i class="fas fa-magic me-2"></i>生成短链
                   </button>
                 </div>
@@ -447,13 +375,13 @@
               </div>
               <div class="card-body d-flex flex-column">
                 <div class="d-flex justify-content-between mb-4">
-                  <button class="btn btn-success" type="button" onclick="loadUrlList()" id="loadListBtn">
+                  <button class="btn btn-success" type="button" id="loadListBtn">
                     <i class="fas fa-sync-alt me-2"></i>刷新列表
                   </button>
-                  <button class="btn btn-danger" type="button" onclick="clearLocalStorage()" id="clearlocalStgBtn">
+                  <button class="btn btn-danger" type="button" id="clearlocalStgBtn">
                     <i class="fas fa-trash-alt me-2"></i>清空本地
                   </button>
-                  <button class="btn btn-info" type="button" onclick="loadKV()" id="loadKV2localStgBtn">
+                  <button class="btn btn-info" type="button" id="loadKV2localStgBtn">
                     <i class="fas fa-cloud-download-alt me-2"></i>从KV加载
                   </button>
                 </div>
@@ -466,30 +394,26 @@
                         <!-- 删除按钮 -->
                         <button type="button"
                                 class="btn btn-danger btn-sm me-1"
-                                onclick="deleteShortUrl('4sure')" 
                                 id="delBtn-4sure"
                                 aria-label="删除">
-                          <i class="fas fa-trash me-1"></i> 
+                          <i class="fas fa-trash me-1"></i>
                           <span class="d-none d-md-inline">删除</span>
                         </button>
-                        <!-- 统计按钮 --> 
+                        <!-- 复制按钮 -->
                         <button type="button"
                                 class="btn btn-info btn-sm me-1"
-                                onclick="queryVisitCount('4sure')"
-                                id="qryCntBtn-4sure"
-                                aria-label="访问统计">
-                          <i class="fas fa-chart-line me-1"></i>
-                          <span class="d-none d-md-inline">统计</span>
-                        </button> 
+                                id="copyBtn-4sure"
+                                aria-label="复制短链接">
+                          <i class="fas fa-copy me-1"></i>
+                          <span class="d-none d-md-inline">复制</span>
+                        </button>
                         <!-- 短链接显示 -->
-                        <span class="fw-bold flex-grow-1 text-truncate text-primary" 
-                          onclick="copyShortUrl('https://1way.eu.org/4sure', event)">
+                        <span class="fw-bold flex-grow-1 text-truncate text-primary">
                           https://1way.eu.org/4sure
-                        </span>                 
+                        </span>
                         <!-- 二维码按钮 -->
                         <button type="button"
                                 class="btn btn-secondary btn-sm"
-                                onclick="buildQrcode('4sure')"
                                 id="qrcodeBtn-4sure"
                                 aria-label="生成二维码">
                           <i class="fas fa-qrcode me-1"></i>
@@ -528,7 +452,7 @@
   <!-- 结果模态框 -->
   <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content"> 
+      <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="resultModalLabel">
             <i class="fas fa-check-circle me-2"></i>生成结果
@@ -539,7 +463,7 @@
           <div class="alert alert-info" id="result">暂无结果</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick="copyurl('result')" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="已复制！"> 
+          <button type="button" class="btn btn-primary" id="copyResultBtn">
             <i class="fas fa-copy me-2"></i>复制
           </button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -552,7 +476,7 @@
   
   <!-- 加载js -->
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/lrsjng/jquery-qrcode@0.18.0/dist/jquery-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/yutian81/slink/main.js"></script>
 </body>

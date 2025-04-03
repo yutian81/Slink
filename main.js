@@ -120,6 +120,66 @@ const shortUrlApp = {
       .forEach(({ key, value }) => this.addUrlToList(key, value));
   },
 
+  // 从KV加载数据到本地存储
+  async loadFromKV() {
+    const btn = document.getElementById("loadKV2localStgBtn");
+    if (!btn) return;
+
+    utils.setButtonLoading(btn, true, '加载中...');
+    
+    try {
+      const password = document.querySelector("#passwordText").value;
+      if (!password) {
+        utils.showModal("请先输入管理密码", false);
+        return;
+      }
+
+      const response = await fetch(config.apiSrv, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          cmd: "qryall", 
+          password: password 
+        })
+      });
+
+      const res = await response.json();
+      
+      if (res.status === "200" && Array.isArray(res.kvlist)) {
+        // 清空本地存储但保留密码
+        const currentPassword = localStorage.getItem("password") || "";
+        localStorage.clear();
+        if (currentPassword) {
+          localStorage.setItem("password", currentPassword);
+        }
+        
+        // 保存新密码
+        localStorage.setItem("password", password);
+        config.password_value = password;
+        
+        // 将KV数据存入本地存储
+        let loadedCount = 0;
+        res.kvlist.forEach(item => {
+          if (item.key && item.value && !item.key.endsWith("-count")) {
+            localStorage.setItem(item.key, item.value);
+            loadedCount++;
+          }
+        });
+        
+        // 重新加载列表
+        this.loadUrlList();
+        utils.showModal(`成功从KV加载 ${loadedCount} 条短链接`);
+      } else {
+        utils.showModal(res.error || "加载失败，请检查密码和配置", false);
+      }
+    } catch (err) {
+      console.error("从KV加载失败:", err);
+      utils.showModal("加载失败: " + (err.message || "网络错误"), false);
+    } finally {
+      utils.setButtonLoading(btn, false, '从KV加载');
+    }
+  },
+
   // 添加URL到列表
   addUrlToList(shortUrl, longUrl) {
     const urlList = document.querySelector("#urlList");
@@ -130,7 +190,7 @@ const shortUrlApp = {
     const buttonGroup = document.createElement('div');
     buttonGroup.className = "d-flex align-items-center me-2";
     
-    // 按钮配置 - 将统计按钮改为复制按钮
+    // 按钮配置
     const buttons = [
       { 
         icon: 'trash', text: '删除', 
@@ -272,18 +332,24 @@ function buildValueTxt(longUrl) {
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
-  // 初始化弹出框
-  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
-    new bootstrap.Popover(el);
-  });
-
-  // 绑定事件
+  // 绑定按钮事件
   document.getElementById("addBtn").addEventListener('click', () => shortUrlApp.generate());
   document.getElementById("loadListBtn").addEventListener('click', () => shortUrlApp.loadUrlList());
   document.getElementById("clearlocalStgBtn").addEventListener('click', () => {
     localStorage.clear();
     document.querySelector("#longURL").value = "";
     shortUrlApp.loadUrlList();
+  });
+
+  // 从KV加载按钮
+  document.getElementById("loadKV2localStgBtn")?.addEventListener('click', () => {
+    shortUrlApp.loadFromKV();
+  });
+
+  // 模态框复制按钮
+  document.getElementById("copyResultBtn")?.addEventListener('click', () => {
+    const text = document.getElementById("result").textContent;
+    utils.copyToClipboard(text);
   });
 
   // 初始加载

@@ -1,18 +1,17 @@
 const config = {
-  password: typeof PASSWORD !== "undefined" ? PASSWORD : "", // 管理密码 // if password != null, then use this config; otherwise, read password from KV.
-  result_page: false, // 是否使用结果页面 // After get the value from KV, if use a page to show the result.
-  theme: typeof THEME !== "undefined" ? THEME : "", // 主题 // Homepage theme, use the empty value for default theme. To use urlcool theme, please fill with "theme/urlcool" .
-  cors: true, // 是否允许CORS // Allow Cross-origin resource sharing for API requests.
-  unique_link: false, // 是否生成唯一短链(增加写入量) // If it is true, the same long url will be shorten into the same short url
-  custom_link: true, // 允许自定义短链 // Allow users to customize the short url.
-  overwrite_kv: false, // 允许覆盖已存在的key // Allow user to overwrite an existed key.
-  snapchat_mode: false, // 阅后即焚模式 // The link will be distroyed after access.
-  visit_count: true, // 访问计数(增加写入量) // Count visit times.
-  load_kv: typeof LOAD_KV !== "undefined" ? LOAD_KV === "true" : false, // 从KV加载全部数据，默认false // Load all from Cloudflare KV
-  system_type: typeof TYPE !== "undefined" ? TYPE : "shorturl", // 系统类型 // shorturl, imghost, other types {pastebin, journal}
+  password: typeof PASSWORD !== "undefined" ? PASSWORD : "", // 管理密码
+  result_page: false, // 是否使用结果页面
+  theme: typeof THEME !== "undefined" ? THEME : "", // 主题
+  cors: true, // 是否允许CORS
+  unique_link: false, // 是否生成唯一短链
+  custom_link: true, // 允许自定义短链
+  overwrite_kv: false, // 允许覆盖已存在的key
+  snapchat_mode: false, // 阅后即焚模式
+  load_kv: typeof LOAD_KV !== "undefined" ? LOAD_KV === "true" : false, // 从KV加载全部数据
+  system_type: typeof TYPE !== "undefined" ? TYPE : "shorturl", // 系统类型
 }
 
-// 受保护的key列表 // key in protect_keylist can't read, add, del from UI and API
+// 受保护的key列表
 const protect_keylist = [
   "password",
 ]
@@ -56,7 +55,7 @@ function base64ToBlob(base64String) {
 
 async function randomString(len) {
   len = len || 6;
-  let chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';    /*去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1 *** Easily confused characters removed */ 
+  let chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
   let maxPos = chars.length;
   let result = '';
   for (i = 0; i < len; i++) {
@@ -72,11 +71,10 @@ async function sha512(url) {
     {
       name: "SHA-512",
     },
-    url, // The data you want to hash as an ArrayBuffer
+    url,
   )
-  const hashArray = Array.from(new Uint8Array(url_digest)); // convert buffer to byte array
+  const hashArray = Array.from(new Uint8Array(url_digest));
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  //console.log(hashHex)
   return hashHex
 }
 
@@ -116,7 +114,7 @@ async function save_url(URL) {
     
     attempts++;
     if (attempts < MAX_RETRIES) {
-      await new Promise(resolve => setTimeout(resolve, 100)); // 100ms延迟  
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
   
@@ -125,7 +123,6 @@ async function save_url(URL) {
 
 async function is_url_exist(url_sha512) {
   let is_exist = await LINKS.get(url_sha512)
-  // console.log(is_exist)
   if (is_exist == null) {
     return false
   } else {
@@ -133,7 +130,6 @@ async function is_url_exist(url_sha512) {
   }
 }
 
-// 系统密码
 async function system_password() {
   if (config.password.trim().length === 0 ) {    
     return await LINKS.get("password");
@@ -144,12 +140,12 @@ async function system_password() {
 }
 
 async function handleRequest(request) {
-  const password_value  = await system_password();
+  const password_value = await system_password();
   
   if (request.method === "POST") {
     let req = await request.json()
 
-    let req_cmd = req["cmd"] 
+    let req_cmd = req["cmd"]
     let req_url = req["url"]
     let req_key = req["key"]
     let req_password = req["password"]
@@ -227,11 +223,6 @@ async function handleRequest(request) {
       }
 
       await LINKS.delete(req_key)
-      
-      if (config.visit_count) {
-        await LINKS.delete(req_key + "-count")
-      }
-
       return new Response(`{"status":200, "key": "` + req_key + `", "error": ""}`, {
         headers: response_header,
       })
@@ -243,20 +234,6 @@ async function handleRequest(request) {
       }
       let value = await LINKS.get(req_key);
       
-      // 对计数key特殊处理
-      if (req_key.endsWith("-count")) {
-        let count = value || "0";
-        return new Response(JSON.stringify({
-          status: 200,
-          error: "",
-          key: req_key,
-          url: count
-        }), {
-          headers: response_header,
-        })
-      }
-      
-      // 普通key查询
       if (value != null) {
         return new Response(JSON.stringify({
           status: 200, 
@@ -272,7 +249,7 @@ async function handleRequest(request) {
         })
       }
     } else if (req_cmd == "qryall") {
-      if ( !config.load_kv) {
+      if (!config.load_kv) {
         return new Response(`{"status":500, "error":"错误：配置中load_kv为false"}`, {
           headers: response_header,
         })
@@ -285,9 +262,6 @@ async function handleRequest(request) {
         for (var i = 0; i < keyList.keys.length; i++) {
           let item = keyList.keys[i];
           if (protect_keylist.includes(item.name)) {
-            continue;
-          }
-          if (item.name.endsWith("-count")) {
             continue;
           }
 
@@ -345,16 +319,6 @@ async function handleRequest(request) {
       headers: response_header,
       status: 404
     })
-  }
-
-  if (config.visit_count) {
-    let count = await LINKS.get(path + "-count");
-    if (count === null) {
-      await LINKS.put(path + "-count", "1"); // 首次访问设置为1
-    } else {
-      count = parseInt(count) + 1;
-      await LINKS.put(path + "-count", count.toString());
-    }
   }
 
   if (config.snapchat_mode) {
