@@ -8,6 +8,12 @@
   <link rel="icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f517.svg" type="image/svg+xml">
   <title>短链接生成器 | Cloudflare Worker</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      cursor: default;
+    }
+    
     :root {
       --primary-color: #4e73df;
       --secondary-color: #f8f9fc;
@@ -31,6 +37,15 @@
       min-height: 100vh;
       padding: 2rem 0;
       color: var(--text-primary);
+      display: -webkit-box;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      justify-content: center;
+      vertical-align: center;
+      flex-wrap: wrap;
+      align-content: center;
     }
 
     .container {
@@ -48,6 +63,7 @@
       margin-bottom: 1.5rem;
       display: flex;
       flex-direction: column;
+      width: 768px;
     }
 
     .card:hover {
@@ -92,6 +108,7 @@
       transition: all 0.2s;
       background-color: var(--input-bg);
       border-color: var(--border-color);
+      cursor: auto;
     }
 
     .form-control:focus {
@@ -154,6 +171,7 @@
       border: 1px solid rgba(0, 0, 0, 0.08);
       transition: all 0.2s;
       background-color: var(--input-bg);
+      font-family: "Source Code Pro", Menlo, Monaco, Consolas, "Courier New", monospace;
     }
 
     .list-group-item:hover {
@@ -231,6 +249,10 @@
       min-width: 600px;
     }
 
+    .img-thumbnail {
+      max-height: 320px;
+    }
+
     @media (max-width: 992px) {
       .cards-container {
         flex-direction: column;
@@ -240,7 +262,10 @@
       }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 769px) {
+      .card {
+        width: 80%;
+      }
       .card-body, .card-footer {
         padding: 1rem;
       }
@@ -298,6 +323,13 @@
         --card-footer-bg: rgba(0, 0, 0, 0.1);
         --qrcode-bg: rgba(45, 55, 72, 0.8);
       }
+      body {
+        color: #d9d9d9; 
+        background: #1b1b1b;
+      }
+      .card {
+        background-color: #252d38;
+      }
       .list-group-item:hover {
         background-color: rgba(78, 115, 223, 0.1);
       }
@@ -327,7 +359,7 @@
                   <label for="longURL" class="form-label fw-bold">长网址</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-link"></i></span>
-                    <textarea class="form-control" id="longURL" rows="1" placeholder="例如：https://example.com/" oninput="loadUrlList()"></textarea>
+                    <textarea class="form-control" id="longURL" rows="1" placeholder="请输入长网址，例如：https://example.com/" oninput="loadUrlList()"></textarea>
                   </div>
                 </div>
                 
@@ -335,7 +367,7 @@
                   <label for="keyPhrase" class="form-label fw-bold">自定义短链（可选）</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-key"></i></span>
-                    <textarea class="form-control" id="keyPhrase" rows="1" placeholder="输入自定义路径"></textarea>
+                    <textarea class="form-control" id="keyPhrase" rows="1" placeholder="输入自定义路径（字母、数字或下划线）"></textarea>
                   </div>
                 </div>
                 
@@ -431,13 +463,13 @@
               <!-- 版权声明 -->
               <div class="card-footer text-center">
                 <p class="mb-0 copyright">
-                  <span class="item">Copyright © 2025 Yutian81</span>
+                  <span class="item">版权所有 © 2025 Yutian81</span>
                   <span class="separator">|</span>
                   <a href="https://github.com/yutian81/slink/" class="item footer-link" target="_blank">
                     <i class="fab fa-github me-1"></i>GitHub
                   </a>
                   <span class="separator">|</span>
-                  <a href="https://blog.811520.xyz/" class="item footer-link" target="_blank">  
+                  <a href="https://blog.811520.xyz/" class="item footer-link" target="_blank">  
                     <i class="fas fa-blog me-1"></i>青云志博客
                   </a>
                 </p>
