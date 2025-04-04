@@ -30,7 +30,7 @@
 1. **Fork 项目并修改代码**
    - 访问 [GitHub 仓库](https://github.com/yutian81/slink/)，点击"Fork"按钮
    - 启用 pages：进入你的 fork 后的仓库设置，找到"Pages"选项，选择主分支作为源，点击"保存"
-   - 获取到你的 main.js 地址和 `index.html` 地址，类似这样
+   - 获取到你的 `main.js` 地址，类似这样
    
      ```
      https://你的用户名.github.io/你的仓库名/main.js`
