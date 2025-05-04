@@ -50,11 +50,12 @@
     }
     
     #longURL {
-      height: auto;
-      min-height: calc(2 * 1.5em); /* 估算两行高度 */
-      display: table-cell;
-      vertical-align: middle;
-      padding: 0.5rem 1rem;
+      resize: none;
+      line-height: normal;
+      display: flex;
+      align-items: center;
+      padding-top: calc((2em - 1rem) / 2); /* 垂直居中 */
+      padding-bottom: calc((2em - 1rem) / 2);
     }
     
     .card {
