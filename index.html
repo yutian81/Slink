@@ -49,11 +49,6 @@
       padding: 0 15px;
     }
     
-    #longURL {
-      line-height: 3;  /* 控制垂直位置 */
-      transform: translateY(-3.2px); /* 微调对齐 */
-    }
-    
     .card {
       background-color: var(--card-bg);
       border: none;
@@ -367,7 +362,7 @@
                   <label for="longURL" class="form-label fw-bold">原始网址</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-link"></i></span>
-                    <textarea class="form-control" id="longURL" rows="2" placeholder="输入原始网址, 如: https://example.com/" oninput="loadUrlList()"></textarea>
+                    <textarea class="form-control" id="longURL" rows="3" placeholder="输入原始网址, 如: https://example.com/" oninput="loadUrlList()"></textarea>
                   </div>
                 </div>
                 
