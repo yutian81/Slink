@@ -1,19 +1,9 @@
-let res
-let apiSrv = window.location.pathname
-let password_value = document.querySelector("#passwordText").value
-// let apiSrv = "https://journal.crazypeace.workers.dev"
-// let password_value = "journaljournal"
-let buildValueItemFunc = buildValueTxt // 这是默认行为, 在不同的index.html中可以设置为不同的行为
-
-// 显示管理密码
-function togglePassword(id) {
-  const input = document.getElementById(id);
-  if (input.type === "password") {
-    input.type = "text";
-  } else {
-    input.type = "password";
-  }
-}
+let res;
+let apiSrv = window.location.pathname;
+let password_value = document.querySelector("#passwordText").value;
+// let apiSrv = "https://journal.crazypeace.workers.dev";
+// let password_value = "journaljournal";
+let buildValueItemFunc = buildValueTxt; // 这是默认行为, 在不同的index.html中可以设置为不同的行为
 
 // 复制短链接
 function copyShortUrl(text, btnId) {
@@ -29,7 +19,46 @@ function copyShortUrl(text, btnId) {
   });
 }
 
-function shorturl() {
+// 模态框复制短链接
+function handleModalCopy(text) {
+  const btn = document.getElementById('copyResultBtn');
+  const originalHTML = btn.innerHTML;
+
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = '<i class="fas fa-check me-2"></i>√ 已复制';
+    btn.classList.replace('btn-primary', 'btn-success');
+    
+    // 自动关闭模态框
+    setTimeout(() => {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('resultModal'));
+      modal.hide();
+    }, 500);
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.classList.replace('btn-success', 'btn-primary');
+    }, 1000);
+  }).catch(() => {
+    const input = document.createElement('input');
+    input.value = text;
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+    
+    // 状态反馈
+    btn.innerHTML = '<i class="fas fa-check me-2"></i>√ 已复制';
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+    }, 1000);
+  });
+}
+
+function shorturl(event) {
+  if (event) {
+    event.preventDefault();
+    if (event.keyCode && event.keyCode !== 13) return;
+  }
+
   if (document.querySelector("#longURL").value == "") {
     alert("URL不能为空!");
     return;
@@ -52,21 +81,18 @@ function shorturl() {
   .then(response => response.json())
   .then(data => {
     document.getElementById("addBtn").disabled = false;
-    document.getElementById("addBtn").innerHTML = '<i class="fas fa-magic me-2"></i>生成短链';
-
+    document.getElementById("addBtn").innerHTML = '<i class="fas fa-magic me-2"></i>生成';
     if (data.status == 200) {
       const shortUrl = window.location.protocol + "//" + window.location.host + "/" + data.key;
       document.getElementById("result").innerHTML = shortUrl;
       
-      // 复制结果按钮添加事件
+      // 绑定模态框复制按钮事件
       document.getElementById("copyResultBtn").onclick = () => {
-        copyToClipboardFromElement(shortUrl);
+        handleModalCopy(shortUrl);
       };
-      
-      // 显示模态框
+      // 生成短链后显示模态框
       const modal = new bootstrap.Modal(document.getElementById('resultModal'));
       modal.show();
-      
       // 添加到本地存储和列表
       localStorage.setItem(data.key, document.querySelector("#longURL").value);
       addUrlToList(data.key, document.querySelector("#longURL").value);
@@ -77,63 +103,32 @@ function shorturl() {
   .catch(err => {
     console.error("Error:", err);
     document.getElementById("addBtn").disabled = false;
-    document.getElementById("addBtn").innerHTML = '<i class="fas fa-magic me-2"></i>生成短链';
+    document.getElementById("addBtn").innerHTML = '<i class="fas fa-magic me-2"></i>生成';
     alert("请求失败，请重试");
   });
 }
 
-function copyurl(id, attr) {
-  let target = null;
-
-  if (attr) {
-    target = document.createElement('div');
-    target.id = 'tempTarget';
-    target.style.opacity = '0';
-    if (id) {
-      let curNode = document.querySelector('#' + id);
-      target.innerText = curNode[attr];
-    } else {
-      target.innerText = attr;
-    }
-    document.body.appendChild(target);
-  } else {
-    target = document.querySelector('#' + id);
-  }
-
-  try {
-    let range = document.createRange();
-    range.selectNode(target);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-    document.execCommand('copy');
-    window.getSelection().removeAllRanges();
-  } catch (e) {
-    console.log('Copy error')
-  }
-
-  if (attr) {
-    target.parentElement.removeChild(target);
-  }
-}
-
 function loadUrlList() {
-  // 清空列表
   let urlList = document.querySelector("#urlList")
+  urlList.innerHTML = ''; // 强制清空
+  urlList.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>';
+
   while (urlList.firstChild) {
     urlList.removeChild(urlList.firstChild)
   }
 
   let longUrl = document.querySelector("#longURL").value // 文本框中的长链接
-  let len = localStorage.length
-  for (; len > 0; len--) {
-    let keyShortURL = localStorage.key(len - 1)
-    let valueLongURL = localStorage.getItem(keyShortURL)
-    // 如果长链接为空，加载所有的localStorage
-    // 如果长链接不为空，加载匹配的localStorage
-    if (longUrl == "" || (longUrl == valueLongURL)) {
-      addUrlToList(keyShortURL, valueLongURL)
+  setTimeout(() => {
+    let len = localStorage.length
+    for (; len > 0; len--) {
+      let keyShortURL = localStorage.key(len - 1)
+      let valueLongURL = localStorage.getItem(keyShortURL)
+      // 如果长链接为空，加载所有的localStorage；否则，加载匹配的localStorage
+      if (longUrl == "" || (longUrl == valueLongURL)) {
+        addUrlToList(keyShortURL, valueLongURL)
+      }
     }
-  }
+  }, 100);
 }
 
 function addUrlToList(shortUrl, longUrl) {
@@ -265,7 +260,12 @@ function queryVisitCount(qryKeyPhrase) {
   })
 }
 
-function query1KV() {
+function query1KV(event) {
+  if (event) {
+    event.preventDefault();
+    if (event.keyCode && event.keyCode !== 13) return;
+  }
+
   let qryKeyPhrase = document.getElementById("keyForQuery").value;
   if (qryKeyPhrase == "") {
     return
@@ -302,8 +302,6 @@ function query1KV() {
 }
 
 function loadKV() {
-  clearLocalStorage();
-  
   fetch(apiSrv, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -315,11 +313,10 @@ function loadKV() {
   })
   .then(data => {
     if (data.status == 200) {
-      data.kvlist.forEach(item => {
-        localStorage.setItem(item.key, item.value);
-      });
+      clearLocalStorage();
+      data.kvlist.forEach(item => { localStorage.setItem(item.key, item.value); });
       loadUrlList(); // 加载完成后刷新列表
-      alert(`成功加载 ${data.kvlist.length} 条记录`);
+      setTimeout(() => { alert(`成功加载 ${data.kvlist.length} 条记录`); }, 300);
     } else {
       alert(data.error || "加载失败");
     }
