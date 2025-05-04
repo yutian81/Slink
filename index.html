@@ -51,9 +51,10 @@
     
     #longURL {
       resize: none;
+      height: calc(1.5em * 2 + 1rem); /* 两行文字 + padding */
+      display: flex;
+      align-items: center;
       line-height: 1.5;
-      padding-top: 0.75rem;
-      padding-bottom: 0.75rem;
       box-sizing: border-box;
     }
     #longURL::placeholder {
