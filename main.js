@@ -385,6 +385,12 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(data => {
       if (data.status == 200) {
         window.visit_count_enabled = data.visit_count;
+        window.enable_qrcode = data.enable_qrcode;
+        window.allow_custom_key = data.allow_custom_key;
+        window.result_page_enabled = data.result_page_enabled;
+        if (!data.allow_custom_key) { // 如果不允许自定义短链接，隐藏自定义链接容器
+          document.getElementById('customLinkContainer').style.display = 'none';
+        }
         // 可以在这里存储其他配置
       }
       loadUrlList();
