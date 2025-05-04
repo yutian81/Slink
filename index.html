@@ -256,6 +256,8 @@
 
     @media (max-width: 992px) {
       .cards-container {
+        height: calc(100vh - 200px); /* 根据实际顶部内容高度调整 */
+        min-height: 500px;
         flex-direction: column;
       }      
       .card-wrapper,
@@ -263,6 +265,17 @@
         flex: 1 1 100%;
         min-width: 100%;
         max-width: 100%;
+      }
+      .card-wrapper:last-child {
+        flex: 1;
+        height: auto;
+      }
+      .card-wrapper:last-child .card {
+        height: 100%;
+      }
+      #urlList {
+        height: calc(100% - 80px); /* 扣除按钮组高度 */
+        overflow-y: auto;
       }
     }
 
