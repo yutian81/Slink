@@ -49,15 +49,9 @@
       padding: 0 15px;
     }
     
-    #longURL {
-      line-height: 3;
-      padding: 0.75rem 1rem;
-      min-height: calc(3rem + 2px);
-    }
     #longURL::placeholder {
-      line-height: 3;
-      transform: none;
-      vertical-align: middle;
+      line-height: 3;  /* 控制垂直位置 */
+      transform: translateY(-3px); /* 微调对齐 */
     }
     
     .card {
@@ -69,8 +63,8 @@
       margin-bottom: 1.5rem;
       display: flex;
       flex-direction: column;
-      width: 100%;
-      max-width: 100%;
+      width: 100%; /* 卡片宽度跟随父容器 */
+      max-width: 100%; /* 防止溢出 */
     }
 
     .card:hover {
@@ -261,32 +255,22 @@
     }
 
     @media (max-width: 992px) {
-      body > .container > .row {
-        height: 100%;
-      }
       .cards-container {
         flex-direction: column;
-        min-height: 0;
-        flex: 1;
-        height: 100%;
-      }
+      }      
+      .card-wrapper,
       .card-wrapper:first-child {
-        flex: 0 0 auto;
-      }
-      .card-wrapper:last-child {
-        flex: 1;
-        min-height: 300px;
-        height: 100%;
-      }
-      .card-wrapper .card {
-        height: 100%;
-      }
-      #urlList {
-        height: calc(100% - 60px);
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
       }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 769px) {
+      .card {
+        width: 100%;
+      }
       .card-body, .card-footer {
         padding: 1rem;
       }
