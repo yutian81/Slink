@@ -25,14 +25,14 @@ function handleModalCopy(text) {
   const originalHTML = btn.innerHTML;
 
   navigator.clipboard.writeText(text).then(() => {
-    btn.innerHTML = '<i class="fas fa-check me-2"></i>√ 已复制';
+    btn.innerHTML = '<i class="fas fa-check me-2"></i>已复制';
     btn.classList.replace('btn-primary', 'btn-success');
     
     // 自动关闭模态框
     setTimeout(() => {
       const modal = bootstrap.Modal.getInstance(document.getElementById('resultModal'));
       modal.hide();
-    }, 500);
+    }, 800);
     setTimeout(() => {
       btn.innerHTML = originalHTML;
       btn.classList.replace('btn-success', 'btn-primary');
@@ -46,7 +46,7 @@ function handleModalCopy(text) {
     document.body.removeChild(input);
     
     // 状态反馈
-    btn.innerHTML = '<i class="fas fa-check me-2"></i>√ 已复制';
+    btn.innerHTML = '<i class="fas fa-check me-2"></i>已复制';
     setTimeout(() => {
       btn.innerHTML = originalHTML;
     }, 1000);
@@ -144,7 +144,7 @@ function addUrlToList(shortUrl, longUrl) {
   delBtn.classList.add("btn", "btn-danger", "rounded-bottom-0")
   delBtn.setAttribute('onclick', 'deleteShortUrl(\"' + shortUrl + '\")')
   delBtn.setAttribute('id', 'delBtn-' + shortUrl)
-  delBtn.innerHTML = '<i class="fas fa-trash-alt" title="删除短链接"></i>' // 使用删除图标
+  delBtn.innerHTML = '<i class="fas fa-trash-alt" title="删除短链接"></i>'
   keyItem.appendChild(delBtn)
 
   // 只有当 visit_count 为 true 时才显示统计按钮
