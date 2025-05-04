@@ -364,47 +364,51 @@
           <div class="card-wrapper">
             <div class="card shadow">
               <div class="card-header">
-                <i class="fas fa-plus-circle me-2"></i>生成新短链接
+                <i class="fas fa-plus-circle me-2"></i>生成短链
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label for="longURL" class="form-label fw-bold">长网址</label>
+                  <label for="longURL" class="form-label fw-bold">原始网址</label>
                   <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-link"></i></span>
-                    <textarea class="form-control" id="longURL" rows="1" placeholder="输入长网址, 如: https://example.com/" oninput="loadUrlList()"></textarea>
+                    <textarea class="form-control" id="longURL" rows="1" placeholder="输入原始网址, 如: https://example.com/" oninput="loadUrlList()"></textarea>
                   </div>
                 </div>
                 
-                <div class="mb-3" id="customLinkContainer">
-                  <label for="keyPhrase" class="form-label fw-bold">自定义短链（可选）</label>
+                <div class="mb-4">
+                  <label for="longURL" class="form-label fw-bold">原始网址</label>
                   <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-key"></i></span>
-                    <textarea class="form-control" id="keyPhrase" rows="1" placeholder="输入自定义路径（字母、数字）"></textarea>
+                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                    <input type="text" 
+                           class="form-control" 
+                           id="longURL" 
+                           placeholder="输入原始网址，如: https://example.com/"
+                           oninput="loadUrlList()">
+                    <button class="btn btn-outline-primary" 
+                            type="button" 
+                            onclick="shorturl()">
+                      <i class="fas fa-magic me-2"></i>生成
+                    </button>
                   </div>
                 </div>
 
                 <div class="mb-4">
-                  <label class="form-label fw-bold">短链Key查询</label>
+                  <label class="form-label fw-bold">查询短链</label>
                   <div class="input-group">
                     <input type="text" 
                            class="form-control" 
                            id="keyForQuery" 
-                           placeholder="输入已有短链Key (如: abc123)">
+                           placeholder="输入已有短链的Key (如: abc123)">
                     <button class="btn btn-outline-primary" 
                             type="button" 
                             onclick="query1KV()">
-                      <i class="fas fa-search me-2"></i>查询长链接
+                      <i class="fas fa-search me-2"></i>查询
                     </button>
                   </div>
                 </div>
                 
                 <input type="hidden" id="passwordText" value="duanlian">
-                
-                <div class="d-grid">
-                  <button class="btn btn-primary btn-lg" type="button" id="addBtn" onclick="shorturl()">
-                    <i class="fas fa-magic me-2"></i>生成短链
-                  </button>
-                </div>
+              
               </div>
             </div>
           </div>
