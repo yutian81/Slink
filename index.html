@@ -50,15 +50,11 @@
     }
     
     #longURL {
-      resize: none;
-      height: calc(1.5em * 2 + 1rem); /* 两行文字 + padding */
-      display: flex;
-      align-items: center;
-      line-height: 1.5;
-      box-sizing: border-box;
-    }
-    #longURL::placeholder {
-      line-height: 1.5;
+      height: auto;
+      min-height: calc(2 * 1.5em); /* 估算两行高度 */
+      display: table-cell;
+      vertical-align: middle;
+      padding: 0.5rem 1rem;
     }
     
     .card {
