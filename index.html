@@ -382,23 +382,23 @@
                     <textarea class="form-control" id="keyPhrase" rows="1" placeholder="输入自定义路径（字母、数字）"></textarea>
                   </div>
                 </div>
-                
-                <div class="mb-3">
-                  <label for="passwordText" class="form-label fw-bold">管理密码</label>
+
+                <div class="mb-4">
+                  <label class="form-label fw-bold">短链Key查询</label>
                   <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                    <input class="form-control" 
-                           type="password" 
-                           value="__PASSWORD__" 
-                           readonly 
-                           id="passwordText">
-                    <button class="btn btn-outline-secondary" 
+                    <input type="text" 
+                           class="form-control" 
+                           id="keyForQuery" 
+                           placeholder="输入已有短链Key (如: abc123)">
+                    <button class="btn btn-outline-primary" 
                             type="button" 
-                            onclick="togglePassword('passwordText')">
-                      <i class="fas fa-eye"></i>
+                            onclick="query1KV()">
+                      <i class="fas fa-search me-2"></i>查询长链接
                     </button>
                   </div>
                 </div>
+                
+                <input type="hidden" id="passwordText" value="duanlian">
                 
                 <div class="d-grid">
                   <button class="btn btn-primary btn-lg" type="button" id="addBtn" onclick="shorturl()">
